@@ -1,0 +1,1384 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>5àsec · PCE · Jan–Jun/2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+<style>
+  :root {
+    --bg:         #F5F5F5;
+    --card:       #FFFFFF;
+    --card-warm:  #F9EDE4;
+    --text:       #222222;
+    --text-mid:   #666666;
+    --text-light: #999999;
+    --orange:     #FFBA86;
+    --orange-dark:#b35a00;
+    --blue:       #8AA5FF;
+    --blue-dark:  #5577dd;
+    --t1:         #b35a00;
+    --t2:         #FFBA86;
+    --t3:         #FFD4A8;
+    --t4:         #F9EDE4;
+    --radius:     16px;
+    --radius-sm:  10px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  /* NAV */
+  .nav-tab { font-size: 13px; font-weight: 500; color: var(--text-light); cursor: pointer; padding: 0 20px; height: 48px; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; background: none; border-top: none; border-left: none; border-right: none; font-family: 'Inter', sans-serif; }
+  .nav-tab:hover { color: var(--text); }
+  .nav-tab.active { color: var(--text); border-bottom-color: var(--orange-dark); font-weight: 600; }
+
+  /* SCREENS */
+  .screen { display: none; padding: 40px; max-width: 1200px; margin: 0 auto; }
+  .screen.active { display: block; }
+
+  .screen-header { margin-bottom: 28px; }
+  .screen-header h1 { font-family: 'Libre Caslon Text', serif; font-size: 24px; color: var(--text); margin-bottom: 4px; }
+  .screen-header p { font-size: 13px; color: var(--text-mid); }
+
+  .section-label { font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--text-light); margin-bottom: 12px; }
+
+  /* KPI */
+  .kpi-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 32px; }
+  .kpi-card { background: var(--card); border-radius: var(--radius); padding: 20px 22px; border: 1px solid rgba(0,0,0,0.06); transition: box-shadow .15s, transform .15s; cursor: default; }
+  .kpi-card:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.08); transform: translateY(-1px); }
+
+  .kpi-label { font-size: 11px; font-weight: 500; color: var(--text-mid); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; }
+  .kpi-value { font-family: 'Libre Caslon Text', serif; font-size: 28px; line-height: 1; color: var(--text); }
+  .kpi-sub { font-size: 12px; color: var(--text-light); margin-top: 4px; line-height: 1.4; }
+  .kpi-card.hi-orange .kpi-value { color: var(--orange-dark); }
+  .kpi-card.hi-blue   .kpi-value { color: var(--blue-dark); }
+
+  /* TIERS */
+  .tier-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 32px; }
+  .tier-card { background: var(--card); border-radius: var(--radius); padding: 20px 22px; border: 1px solid rgba(0,0,0,0.06); position: relative; overflow: hidden; transition: box-shadow .15s, transform .15s; cursor: default; }
+  .tier-card:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.08); transform: translateY(-1px); }
+  .tier-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+  .tier-card.t1::before { background: var(--t1); }
+  .tier-card.t2::before { background: var(--t2); }
+  .tier-card.t3::before { background: var(--t3); }
+  .tier-card.t4::before { background: #ddd; }
+  .tier-badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; margin-bottom: 10px; }
+  .t1 .tier-badge { background: #fdf0e6; color: var(--t1); }
+  .t2 .tier-badge { background: #fff5ee; color: #c47a30; }
+  .t3 .tier-badge { background: #fff8f2; color: #a0622a; }
+  .t4 .tier-badge { background: #f5f5f5; color: #888; }
+  .tier-range { font-size: 12px; color: var(--text-mid); margin-bottom: 8px; }
+  .tier-count { font-family: 'Libre Caslon Text', serif; font-size: 24px; color: var(--text); line-height: 1; margin-bottom: 6px; }
+  .tier-breakdown { font-size: 12px; color: var(--text-light); line-height: 1.6; }
+
+  /* CHART CARDS */
+  .chart-row { display: grid; gap: 16px; margin-bottom: 24px; }
+  .chart-row.two { grid-template-columns: 1fr 1fr; }
+  .chart-row.one { grid-template-columns: 1fr; }
+  .chart-card { background: var(--card); border-radius: var(--radius); padding: 24px; border: 1px solid rgba(0,0,0,0.06); transition: box-shadow .15s, transform .15s; cursor: default; }
+  .chart-card:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.08); transform: translateY(-1px); }
+  .chart-header { margin-bottom: 16px; }
+  .chart-title { font-family: 'Libre Caslon Text', serif; font-size: 17px; color: var(--text); margin-bottom: 4px; }
+  .chart-insight { font-size: 12px; color: var(--text-mid); line-height: 1.5; }
+  .chart-inner { background: var(--card-warm); border-radius: var(--radius-sm); padding: 20px; position: relative; }
+  .chart-legend { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 14px; font-size: 12px; color: var(--text-mid); }
+  .chart-legend span { display: flex; align-items: center; gap: 6px; }
+  .leg-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+  /* REGIONAL BARS */
+  .reg-list { display: flex; flex-direction: column; gap: 14px; }
+  .reg-row { display: grid; grid-template-columns: 110px 1fr; align-items: center; gap: 12px; }
+  .reg-name { font-size: 13px; font-weight: 500; color: var(--text); }
+  .reg-sub  { font-size: 11px; color: var(--text-light); }
+  .reg-bars { display: flex; flex-direction: column; gap: 4px; }
+  .reg-bar-line { display: flex; align-items: center; gap: 8px; font-size: 11px; }
+  .reg-bar-label { width: 44px; flex-shrink: 0; font-weight: 500; font-size: 10px; }
+  .reg-bar-label.asec { color: var(--orange-dark); }
+  .reg-bar-label.lavp { color: var(--blue-dark); }
+  .reg-track { flex: 1; background: rgba(0,0,0,0.07); border-radius: 3px; height: 12px; overflow: hidden; }
+  .reg-fill  { height: 100%; border-radius: 3px; max-width: 100%; }
+  .reg-val   { width: 36px; font-size: 11px; color: var(--text-mid); text-align: right; }
+
+  /* TABLES */
+  .data-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+  .data-table th { text-align: left; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--text-light); padding: 6px 8px; border-bottom: 1px solid rgba(0,0,0,0.08); white-space: nowrap; }
+  .data-table td { padding: 8px 8px; color: var(--text); border-bottom: 1px solid rgba(0,0,0,0.05); vertical-align: middle; }
+  .data-table tbody tr:last-child td { border-bottom: none; }
+  .data-table tbody tr:hover td { background: rgba(0,0,0,0.02); }
+  .data-table td:not(:first-child) { white-space: nowrap; }
+
+  .brand-badge { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 20px; }
+  .brand-badge.asec { background: #fdf0e6; color: var(--orange-dark); }
+  .brand-badge.lavp { background: #eef1ff; color: var(--blue-dark); }
+  .tier-pill { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 20px; }
+  .tier-pill.t1 { background: #fdf0e6; color: var(--orange-dark); }
+  .tier-pill.t2 { background: #fff5ee; color: #c47a30; }
+  .tier-pill.t3 { background: #fff8f2; color: #a0622a; }
+  .tier-pill.t4 { background: #f5f5f5; color: #888; }
+  .uf-pill { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 20px; background: #f0f0f0; color: #666; }
+
+  /* COMING SOON */
+  .coming-soon-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 400px; gap: 12px; color: var(--text-light); }
+  .coming-soon-screen h2 { font-family: 'Libre Caslon Text', serif; font-size: 22px; color: var(--text-mid); }
+  .coming-soon-screen p { font-size: 13px; }
+
+  @media (max-width: 900px) {
+    nav { padding: 0 16px; gap: 16px; overflow-x: auto; height: auto; }
+    .nav-tab { padding: 16px 0; flex-shrink: 0; }
+    .nav-meta { display: none; }
+    .screen { padding: 20px 16px; }
+    .kpi-row { grid-template-columns: repeat(2,1fr); }
+    .tier-row { grid-template-columns: repeat(2,1fr); }
+    .chart-row.two { grid-template-columns: 1fr; }
+    .topbar { padding: 10px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div style="background:#222222;color:#fff;padding:24px 40px;display:flex;align-items:center;justify-content:space-between">
+  <div style="display:flex;align-items:center;gap:16px">
+    <svg width="36" height="38" viewBox="0 0 364 380" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M81.08 69.94C51.23 100.14 32.8 141.64 32.8 187.47C32.8 233.29 51.23 274.79 81.08 304.99C33.69 287 0 241.17 0 187.47C0 133.77 33.69 87.93 81.08 69.94Z" fill="white" fill-opacity="0.9"/>
+      <path d="M361.49 148.01C350.99 106.87 324.9 69.7 285.62 46.1C246.35 22.5 201.26 16.92 160.03 26.95C199.84 -4.42 256.49 -9.7 302.52 17.97C348.55 45.62 370.49 98.1 361.49 148.01Z" fill="white" fill-opacity="0.9"/>
+      <path d="M361.49 231.13C350.99 272.27 324.9 309.45 285.62 333.05C246.35 356.65 201.26 362.22 160.03 352.2C199.84 383.56 256.49 388.84 302.52 361.18C348.55 333.52 370.49 281.04 361.49 231.13Z" fill="white" fill-opacity="0.9"/>
+    </svg>
+    <div>
+      <div style="font-family:'Libre Caslon Text',serif;font-size:17px;font-weight:400;color:#fff">5àsec · Percloroetileno</div>
+      <div id="header-sub" style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px">Relatório Semestral de Resíduos · Musa</div>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:20px">
+    <!-- LANG SWITCHER -->
+    <div style="display:flex;align-items:center;gap:4px">
+      <button onclick="setLang('pt')" id="lang-pt" style="font-family:'Inter',sans-serif;font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;border:1px solid rgba(255,255,255,0.5);background:rgba(255,255,255,0.15);color:#fff;cursor:pointer;transition:all .15s">PT</button>
+      <button onclick="setLang('en')" id="lang-en" style="font-family:'Inter',sans-serif;font-size:11px;font-weight:400;padding:4px 10px;border-radius:20px;border:1px solid rgba(255,255,255,0.15);background:transparent;color:rgba(255,255,255,0.5);cursor:pointer;transition:all .15s">EN</button>
+      <button onclick="setLang('fr')" id="lang-fr" style="font-family:'Inter',sans-serif;font-size:11px;font-weight:400;padding:4px 10px;border-radius:20px;border:1px solid rgba(255,255,255,0.15);background:transparent;color:rgba(255,255,255,0.5);cursor:pointer;transition:all .15s">FR</button>
+    </div>
+    <div style="font-size:11px;color:rgba(255,255,255,0.6);border:1px solid rgba(255,255,255,0.2);padding:5px 14px;border-radius:20px;font-weight:400;letter-spacing:0.02em">Jan–Jun/2026</div>
+    <div style="width:1px;height:28px;background:rgba(255,255,255,0.2)"></div>
+    <img src="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNDA2LjkyIDExOSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB3aWR0aD0iMjUwMCIgaGVpZ2h0PSI3MzEiPjxnIGZpbGwtcnVsZT0iZXZlbm9kZCI+PHBhdGggZD0iTTI1MC4yOSA1My4xMWwtLjMuMjJjLS40Ny40LS45NC43Ni0xLjQ1IDEuMS0uNDMuMjktLjg3LjUyLTEuMy43Ni0yLjQgMS4yNi01LjE0IDEuOTUtOC4zNCAxLjk1LTQuNTMgMC04LjE4LTEuMzQtMTAuOTUtNC4wMS0yLjc2LTIuNjgtNC4xNy02LjEzLTQuMTctMTAuMzdsLjAzLS4zNC0uMDMtLjMzYzAtNC4yNCAxLjQxLTcuNjkgNC4xNy0xMC4zOCAyLjc3LTIuNjggNi40Mi00LjAyIDEwLjk1LTQuMDIgMy4yIDAgNS45NC43IDguMzQgMS45NS40My4yNS44Ny40OSAxLjMuNzguNTEuMzQgMSAuNyAxLjQ1IDEuMDlsLjMuMjRjLjg2Ljc0IDIuMS45IDMuMzkuNDdsNy45OC01LjQ2Yy0yLjQxLTMuMi01LjM4LTUuNzQtOC45OC03LjU0LTIuNy0xLjM0LTUuNjUtMi4yLTguODEtMi42My0uMzUtLjA0LS42OC0uMTEtMS4wNC0uMTQtLjYyLS4wNy0xLjI1LS4wNy0xLjg5LS4xLS41NS0uMDMtMS4wOS0uMDctMS42NS0uMDctNS4zLjAxLTEwLjExIDEuMTYtMTQuNCAzLjQ3LTQuMzEgMi4zMS03LjY4IDUuNTEtMTAuMDggOS41NS0yLjM3IDQuMDEtMy41NiA4LjM3LTMuNiAxMy4xMy4wNCA0Ljc0IDEuMjMgOS4xMiAzLjYgMTMuMTIgMi40MSA0LjA1IDUuNzggNy4yNCAxMC4wOCA5LjU2IDQuMjkgMi4zMiA5LjEgMy40NiAxNC40IDMuNDcuNTYgMCAxLjEtLjA0IDEuNjUtLjA3LjY0LS4wMiAxLjI3LS4wMiAxLjg5LS4wOS4zNi0uMDMuNjktLjEgMS4wNS0uMTYgMy4xNi0uNDMgNi4xLTEuMjggOC44LTIuNjIgMy42MS0xLjggNi41Ny00LjM1IDguOTgtNy41NGwtNy45OC01LjQ3Yy0xLjMtLjQyLTIuNTMtLjI3LTMuMzkuNDh6TTQ2LjU5IDcuOTJjMCAyLjU3LTEuODMgMy4zOS00LjA4IDMuMzlIMTguNjVsLTIuNzEgMTUuMzcuMi4xOWMzLjY3LTMuNzYgNy45Mi01LjIxIDEzLjI0LTUuMjEgMTMuMzQgMCAyMC44OCAxMC4zNCAyMC44OCAyMyAwIDEzLjkzLTExLjUgMjQuNjUtMjUuMTIgMjQuMzZDMTEuOTggNjkuMDEuMiA2MS43NyAwIDQ3LjU1aDEwLjE5YzIuNzIgMCAzLjc2IDEuNDggMy45NiAyLjE3IDEuMzggNC44MSA1LjQ1IDcuOTkgMTAuNjkgNy45OSA3LjE1IDAgMTEuNy02LjI4IDExLjctMTMuMDVTMzIuMiAzMiAyNC44NCAzMmMtNC45MyAwLTcuNjMgMS43NC0xMC4zNCA1LjQxSDIuMTNMOC43OSAwaDM3Ljh6bTQyLjc2IDQ1LjEzYy0yLjU4IDIuNzMtNS44MyA0LjA5LTkuNzUgNC4wOXMtNy0xLjM4LTkuNi00LjE1LTMuODktNi4zMS0zLjg5LTEwLjYxIDEuMjgtNy43NyAzLjg0LTEwLjVjMi41NS0yLjczIDUuNzUtNC4xIDkuNjEtNC4xczcuMjIgMS4zNSA5LjggNC4wNGMyLjU3IDIuNjcgMy44OCA2LjE4IDMuODggMTAuNTJzLTEuMzEgNy45OS0zLjg4IDEwLjcxem0xNS44LTMyLjE0YzAtMi40OC0xLjczLTMuMzItMy44OS0zLjM3bC0uMTktLjAyaC04LjR2NS41Yy0yLjIzLTIuMjUtNC42NC0zLjk0LTcuMjYtNS4wNy0yLjYyLTEuMTItNS40Mi0xLjY5LTguNDEtMS42OS02LjQ5IDAtMTIgMi40Ni0xNi41NCA3LjM2LTQuNTMgNC45MS02LjggMTEuMi02LjggMTguODlTNTYgNTYuMTIgNjAuNjkgNjEuMWM0LjcgNC45OCAxMC4yNSA3LjQ3IDE2LjY4IDcuNDcgMi44NiAwIDUuNTItLjUgNy45Ny0xLjUzczQuODktMi43IDcuMzMtNS4wMXYxLjg1YzAgMi41NyAxLjg0IDMuMzkgNC4wOCAzLjM5aDguMzdzLjAyLTQzLjQ0LjAyLTQ2LjM3em0zMy41NyAxNi41MWMtNy43Ni0xLjgyLTE1LjQ0LTIuNDktMTUuNDQtNy4zOSAwLTQuMDMgNC41MS00LjYgNy41OC00LjYgMy40OSAwIDcuNTIuNzYgOS45OCAzLjE1Ljc1LjgxIDEuODUgMS43IDMuMzUuNzQgMS40OS0uOTUgNi42OS00LjU4IDYuNjktNC41OC0zLjcyLTYuMzMtMTEuNDMtOC40NC0xOS42NS04LjQ0LTEwLjY1IDAtMjEuNTkgMy4yOC0yMS41OSAxNS45MyAwIDguNzMgNy44NyAxMS41MiAxNS43NCAxMy4yNCA5Ljc5IDIuMTIgMTUuNDUgMy41NiAxNS40NSA3LjY4IDAgNC44MS00Ljk5IDYuMzQtOC45MyA2LjM0LTQuNDQgMC04LjUtMS42OC0xMC01LjU5LS40OC0xLjI0LS45LTIuNzctNC4yLTIuNzdoLTkuMjFjLjU4IDEzLjE1IDExLjggMTcuNDggMjMuMzIgMTcuNDhzMjIuNjMtNC4yMyAyMi42My0xNy4yOGMwLTkuMjEtNy43Ni0xMi4wOS0xNS43My0xMy45MXpNMTk2IDM2LjIxYy0uODItMi43Ni0yLjQ1LTUuMDMtNC44OC02Ljc3LTIuNDMtMS43NS01LjI0LTIuNi04LjQ1LTIuNi0zLjQ4IDAtNi41My45Ny05LjE2IDIuOTMtMS42NSAxLjIxLTMuMTggMy4zNi00LjU4IDYuNDR6bTEyLjQ5IDkuODNoLTQwLjFjLjU4IDMuNTMgMi4xMyA2LjM1IDQuNjQgOC40NCAyLjUyIDIuMDggNS43MyAzLjEzIDkuNjIgMy4xM3M3LjM4LTEuMjEgMTAuNDMtMy40OWMuOTktLjc1IDIuNjUtLjkxIDQuMDQtLjI2IDEuNC42NiA4LjA4IDMuNzkgOC4wOCAzLjc5LTIuNjMgMy43NC01Ljc2IDYuNDgtOS40MyA4LjI2LTMuNjYgMS43OS04IDIuNjgtMTMuMDMgMi42OC03LjggMC0xNC4xNi0yLjQ2LTE5LjA3LTcuMzktNC45MS00Ljk0LTcuMzYtMTEuMDktNy4zNi0xOC41MXMyLjQ1LTEzLjg5IDcuMzQtMTguOWM0LjktNS4wMSAxMS4wMy03LjUyIDE4LjQxLTcuNTIgNy44MyAwIDE0LjIgMi41MSAxOS4xMSA3LjUyIDQuOTEgNS4wMiA3LjM3IDExLjYzIDcuMzcgMTkuODh6IiBmaWxsPSIjMzYwZjQxIi8+PGcgZmlsbD0iI2U4NGIyMCI+PHBhdGggZD0iTTk4LjI2IDBoLTQ1LjV2MTEuM2g0NS41ek01Mi43NSAxMTloNDUuNVY3My41aC00NS41ek0xMzIuOTQgMTA0Ljk5aC0yLjI3Vjg5LjMyaC00Ljkzdi0xLjhoMTIuMTh2MS44aC00Ljk4em0yNjkuMDEgMGgtMi4yOFY4OS4zMmgtNC45M3YtMS44aDEyLjE4djEuOGgtNC45OHYxNS42N3ptLTI1Ljg5LTkuMzloLjdjMi41NyAwIDUuMTctLjQyIDUuMTctMy4xMyAwLTIuODctMi40Ni0zLjE1LTUuMi0zLjE1aC0uNjh2Ni4yOHptMCA5LjM5aC0yLjI3Vjg3LjUxaDIuOTVjMy44NyAwIDcuNDcuODkgNy40NyA0LjgyIDAgMi42OS0xLjk3IDQuNTktNS4xMSA0LjgybDYuNDkgNy44NGgtMi43OGwtNi4xOC03LjY3aC0uNTd6bS0yNS4zMy0xNy40OGgxMC41OXYxLjgxaC04LjMxdjUuMTloOC4wNnYxLjgyaC04LjA2djYuODZoOC4zMVYxMDVoLTEwLjU5Vjg3LjUzem0tMTkuOTYgOC4wMmgxLjUyYzIuNTIgMCA0LjY2LS42NSA0LjY2LTMuMTUgMC0yLjg1LTIuNjgtMy4wNi01LjMzLTMuMDZoLS44NHY2LjIxem0wIDkuNDZoLTIuMjdWODcuNTFoMy4zNWMxLjc2IDAgMy41Ny4wNSA1LjA2LjkzIDEuNTIuOTEgMi4zIDIuNDMgMi4zIDMuOTkgMCAxLjQyLS42OCAyLjg1LTEuOTQgMy43NS0xLjM4Ljk3LTMuMTQgMS4xNS00Ljg1IDEuMTVoLTEuNjV2Ny42NXptLTI3LjM0LTE3LjQ4aDIuNmw0LjE3IDYuNTggNC4xNy02LjU4aDIuNmwtNS41MyA4LjQzIDYuMDQgOS4wNGgtMi42bC00LjY4LTcuMTktNC42OCA3LjE5aC0yLjZsNi4wNC05LjA0LTUuNTItOC40M3ptLTIxLjg3IDBoMTAuNTh2MS44MWgtOC4zMXY1LjE5aDguMDd2MS44MmgtOC4wN3Y2Ljg2aDguMzFWMTA1aC0xMC41OFY4Ny41M3ptLTMwLjU5IDBoMTAuNTl2MS44MWgtOC4zMXY1LjE5aDguMDd2MS44MmgtOC4wN3Y2Ljg2aDguMzFWMTA1aC0xMC41OVY4Ny41M3ptLTE2LjQ5IDE1LjY3aDUuNjN2MS44MWgtNy45Vjg3LjUxaDIuMjd6bS0xNS4wMiAxLjgxaC0yLjI4Vjg3LjUyaDIuMjh6bS0xOC4yNSAwaC0yLjI3Vjg5LjMyaC00Ljkydi0xLjhoMTIuMTh2MS44aC00Ljk4djE1LjY3em0tMzAuNDktMTcuNDhoMi42bDQuMTcgNi41OCA0LjE3LTYuNThoMi42bC01LjUyIDguNDMgNi4wMyA5LjA0aC0yLjZsLTQuNjgtNy4xOS00LjY4IDcuMTloLTIuNmw2LjA0LTkuMDR6bS0yMS44NiAwaDEwLjU5djEuODFoLTguMzF2NS4xOWg4LjA3djEuODJoLTguMDd2Ni44Nmg4LjMxVjEwNWgtMTAuNTlWODcuNTN6Ii8+PC9nPjwvZz48L3N2Zz4=" style="height:28px;display:block;filter:brightness(0) invert(1);opacity:0.85">
+  </div>
+</div>
+
+<!-- NAV -->
+<div style="background:#fff;border-bottom:1px solid rgba(0,0,0,0.08);padding:0 40px;display:flex;align-items:center;justify-content:space-between;height:48px;position:sticky;top:0;z-index:100">
+  <div style="display:flex;align-items:center;gap:0">
+    <button id="btn-geral"    class="nav-tab active" onclick="showScreen('geral',this)">Visão Geral</button>
+    <button id="btn-5asec"    class="nav-tab" onclick="showScreen('5asec',this)">5àsec</button>
+    <button id="btn-lavpop"   class="nav-tab" onclick="showScreen('lavpop',this)">LavPop</button>
+    <button id="btn-impacto"  class="nav-tab" onclick="showScreen('impacto',this)">Impacto Ambiental</button>
+    <button id="btn-insights" class="nav-tab" onclick="showScreen('insights',this)">Insights</button>
+  </div>
+  <span style="font-size:12px;color:#999;white-space:nowrap">Jan–Jun/2026 · 525 unidades</span>
+</div>
+
+<!-- VISÃO GERAL -->
+<div class="screen active" id="screen-geral">
+
+  <div class="screen-header">
+    <h1 id="screen-title">Visão Geral</h1>
+    <p id="screen-sub">Gestão de Percloroetileno (PCE) · todas as unidades · Jan–Jun/2026</p>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpi-row">
+    <div class="kpi-card">
+      <div id="kpi-unidades-label" class="kpi-label">Unidades ativas</div>
+      <div class="kpi-value">525</div>
+      <div id="kpi-unidades-sub" class="kpi-sub">27 estados</div>
+    </div>
+    <div class="kpi-card">
+      <div id="kpi-volume-label" class="kpi-label">Volume total</div>
+      <div class="kpi-value">94.500<span style="font-family:'Inter',sans-serif;font-size:14px;color:var(--text-light)"> L</span></div>
+      <div id="kpi-volume-sub" class="kpi-sub">litros no período</div>
+    </div>
+    <div class="kpi-card">
+      <div id="kpi-coletas-label" class="kpi-label">Total de Coletas</div>
+      <div class="kpi-value">3.150</div>
+      <div id="kpi-coletas-sub" class="kpi-sub">sob demanda</div>
+    </div>
+    <div class="kpi-card hi-blue">
+      <div id="kpi-transp-label" class="kpi-label">Transportadores</div>
+      <div class="kpi-value">2</div>
+      <div id="kpi-transp-sub" class="kpi-sub">ativos na operação</div>
+    </div>
+    <div class="kpi-card hi-orange">
+      <div id="kpi-recep-label" class="kpi-label">Receptores</div>
+      <div class="kpi-value">27</div>
+      <div id="kpi-recep-sub" class="kpi-sub">ativos na operação</div>
+    </div>
+  </div>
+
+  <!-- TIERS -->
+  <div id="tier-label" class="section-label">Tiers de geração — média mensal por unidade</div>
+  <div class="tier-row">
+    <div class="tier-card t1">
+      <div id="t1-badge" class="tier-badge">Tier 1 — Alto</div>
+      <div id="t1-range" class="tier-range">média ≥ 25L/mês</div>
+      <div class="tier-count"><span id="t1-count">121</span> <span class="tier-unit">unidades</span></div>
+      <div class="tier-breakdown">5àsec: 100 · LavPop: 21</div>
+    </div>
+    <div class="tier-card t2">
+      <div id="t2-badge" class="tier-badge">Tier 2 — Médio-alto</div>
+      <div id="t2-range" class="tier-range">média 18–24L/mês</div>
+      <div class="tier-count"><span id="t2-count">158</span> <span class="tier-unit">unidades</span></div>
+      <div class="tier-breakdown">5àsec: 130 · LavPop: 28</div>
+    </div>
+    <div class="tier-card t3">
+      <div id="t3-badge" class="tier-badge">Tier 3 — Médio-baixo</div>
+      <div id="t3-range" class="tier-range">média 12–17L/mês</div>
+      <div class="tier-count"><span id="t3-count">144</span> <span class="tier-unit">unidades</span></div>
+      <div class="tier-breakdown">5àsec: 130 · LavPop: 14</div>
+    </div>
+    <div class="tier-card t4">
+      <div id="t4-badge" class="tier-badge">Tier 4 — Baixo</div>
+      <div id="t4-range" class="tier-range">média &lt; 12L/mês</div>
+      <div class="tier-count"><span id="t4-count">102</span> <span class="tier-unit">unidades</span></div>
+      <div class="tier-breakdown">5àsec: 96 · LavPop: 6</div>
+    </div>
+  </div>
+
+  <!-- TIER POR MARCA + MÉDIA POR GRUPO -->
+  <div class="chart-row two">
+    <div class="chart-card">
+      <div class="chart-header">
+        <div id="chart-tier-title" class="chart-title">Distribuição tier por marca</div>
+        <div id="ins-tier" class="chart-insight">LavPop concentra 71% em T1/T2 — rede uniforme. 5àsec tem mais unidades em T3/T4, puxadas pelos Satélites.</div>
+      </div>
+      <div class="chart-inner" style="height:220px">
+        <canvas id="c_tier"></canvas>
+      </div>
+      <div class="chart-legend">
+        <span><span class="leg-dot" style="background:#b35a00"></span>T1</span>
+        <span><span class="leg-dot" style="background:#FFBA86"></span>T2</span>
+        <span><span class="leg-dot" style="background:#FFD4A8"></span>T3</span>
+        <span><span class="leg-dot" style="background:#e0e0e0"></span>T4</span>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <div id="chart-grupo-title" class="chart-title">Média mensal por tipo de loja</div>
+        <div id="ins-grupo" class="chart-insight">5àsec Padrão e LavPop Padrão lideram com 1 bombona cheia (30L). Satélite gera metade. O formato da loja explica o volume.</div>
+      </div>
+      <div class="chart-inner" style="height:220px">
+        <canvas id="c_grupo"></canvas>
+      </div>
+      <div class="chart-legend">
+        <span><span class="leg-dot" style="background:#b35a00"></span>5àsec Padrão</span>
+        <span><span class="leg-dot" style="background:#FFBA86"></span>5àsec Express</span>
+        <span><span class="leg-dot" style="background:#FFD4A8"></span>5àsec Satélite</span>
+        <span><span class="leg-dot" style="background:#8AA5FF"></span>LavPop Auto.</span>
+        <span><span class="leg-dot" style="background:#c4ceff"></span>LavPop Padrão</span>
+        <span><span style="display:inline-block;width:18px;height:0;border-top:2px solid #b35a00;vertical-align:middle;margin-right:4px"></span>% no Tier 1</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SAZONALIDADE -->
+  <div class="chart-row one">
+    <div class="chart-card">
+      <div class="chart-header">
+        <div id="chart-saz-title" class="chart-title">Sazonalidade — volume mensal por grupo</div>
+        <div id="ins-saz" class="chart-insight">Tendência de alta ao longo do semestre — inverno aumenta o uso de lavanderia a seco. 5àsec lidera e concentra o crescimento. LavPop tem padrão mais irregular, reflexo de uma rede menor.</div>
+      </div>
+      <div class="chart-inner" style="height:320px">
+        <canvas id="c_scatter"></canvas>
+      </div>
+      <div class="chart-legend">
+        <span><span class="leg-dot" style="background:#b35a00"></span>5àsec</span>
+        <span><span class="leg-dot" style="background:#8AA5FF"></span>LavPop</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- REGIONAL -->
+  <div class="chart-row one">
+    <div class="chart-card">
+      <div class="chart-header">
+        <div id="chart-reg-title" class="chart-title">Volume por estado — semestre</div>
+        <div id="ins-reg" class="chart-insight">Minas Gerais lidera fora de SP com 12% do volume total. Sul (PR, SC, RS) concentra alto volume por unidade — clima mais frio explica. Norte/CO tem mais unidades mas menor geração média.</div>
+      </div>
+      <div class="chart-inner" id="reg-inner" style="padding:16px 20px">
+        <div class="reg-list" id="reg-list"></div>
+      </div>
+      <div class="chart-legend">
+        <span><span class="leg-dot" style="background:#FFBA86"></span>5àsec</span>
+        <span><span class="leg-dot" style="background:#8AA5FF"></span>LavPop</span>
+        <span><span style="display:inline-block;width:18px;height:4px;background:#b35a00;border-radius:3px;opacity:0.7;vertical-align:middle;margin-right:4px"></span>% do total</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOP 10 / BOTTOM 10 -->
+  <div class="chart-row two">
+    <div class="chart-card">
+      <div class="chart-header">
+        <div class="chart-title" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <span id="top10-title">Top 10 unidades</span>
+          <span id="top10-badge" style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:#fdf0e6;color:#b35a00">maior volume médio</span>
+        </div>
+        <div id="ins-top10" class="chart-insight">5àsec Padrão domina o topo — lojas maiores, maior fluxo de peças e uso intensivo do limpador a seco. Sul e SP Capital lideram pelo clima e perfil de cliente.</div>
+      </div>
+      <table class="data-table">
+        <thead><tr><th class="th-unidade">Unidade</th><th class="th-bandeira">Bandeira</th><th class="th-uf">UF</th><th class="th-tier">Tier</th><th class="th-media">Média/mês</th></tr></thead>
+        <tbody>
+          <tr><td>Curitiba Batel</td><td><span class="brand-badge asec">5àsec</span></td><td><span class="uf-pill">PR</span></td><td><span class="tier-pill t1">T1</span></td><td>30 L</td></tr>
+          <tr><td>Florianópolis Beiramar</td><td><span class="brand-badge asec">5àsec</span></td><td><span class="uf-pill">SC</span></td><td><span class="tier-pill t1">T1</span></td><td>30 L</td></tr>
+          <tr><td>SP Jardim Europa</td><td><span class="brand-badge asec">5àsec</span></td><td><span class="uf-pill">SP</span></td><td><span class="tier-pill t1">T1</span></td><td>30 L</td></tr>
+          <tr><td>Porto Alegre Moinhos</td><td><span class="brand-badge asec">5àsec</span></td><td><span class="uf-pill">RS</span></td><td><span class="tier-pill t1">T1</span></td><td>30 L</td></tr>
+          <tr><td>BH Lourdes</td><td><span class="brand-badge asec">5àsec</span></td><td><span class="uf-pill">MG</span></td><td><span class="tier-pill t1">T1</span></td><td>28 L</td></tr>
+          <tr><td>Balneário Camboriú Centro</td><td><span class="brand-badge lavp">LavPop</span></td><td><span class="uf-pill">SC</span></td><td><span class="tier-pill t1">T1</span></td><td>28 L</td></tr>
+          <tr><td>SP Moema</td><td><span class="brand-badge asec">5àsec</span></td><td><span class="uf-pill">SP</span></td><td><span class="tier-pill t1">T1</span></td><td>27 L</td></tr>
+          <tr><td>Curitiba Portão</td><td><span class="brand-badge lavp">LavPop</span></td><td><span class="uf-pill">PR</span></td><td><span class="tier-pill t1">T1</span></td><td>27 L</td></tr>
+          <tr><td>Joinville Centro</td><td><span class="brand-badge asec">5àsec</span></td><td><span class="uf-pill">SC</span></td><td><span class="tier-pill t1">T1</span></td><td>26 L</td></tr>
+          <tr><td>Rio de Janeiro Leblon</td><td><span class="brand-badge asec">5àsec</span></td><td><span class="uf-pill">RJ</span></td><td><span class="tier-pill t1">T1</span></td><td>26 L</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <div class="chart-title" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <span id="bot10-title">Bottom 10 unidades</span>
+          <span id="bot10-badge" style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:#f0f0f0;color:#888">menor volume médio</span>
+        </div>
+        <div id="ins-bot10" class="chart-insight">Satélites e unidades do Norte/CO concentram os menores volumes — clima equatorial reduz uso de roupas a seco e o formato Satélite opera com menor fluxo de peças por ponto.</div>
+      </div>
+      <table class="data-table">
+        <thead><tr><th class="th-unidade">Unidade</th><th class="th-bandeira">Bandeira</th><th class="th-uf">UF</th><th class="th-tier">Tier</th><th class="th-media">Média/mês</th></tr></thead>
+        <tbody>
+          <tr><td>Santarém Caranazal</td><td><span class="brand-badge lavp">LavPop</span></td><td><span class="uf-pill">PA</span></td><td><span class="tier-pill t4">T4</span></td><td>9 L</td></tr>
+          <tr><td>Manaus Centro</td><td><span class="brand-badge asec">5àsec</span></td><td><span class="uf-pill">AM</span></td><td><span class="tier-pill t4">T4</span></td><td>9 L</td></tr>
+          <tr><td>Boa Vista Centro</td><td><span class="brand-badge lavp">LavPop</span></td><td><span class="uf-pill">RR</span></td><td><span class="tier-pill t4">T4</span></td><td>9 L</td></tr>
+          <tr><td>Macapá Centro</td><td><span class="brand-badge lavp">LavPop</span></td><td><span class="uf-pill">AP</span></td><td><span class="tier-pill t4">T4</span></td><td>10 L</td></tr>
+          <tr><td>Belém Satélite</td><td><span class="brand-badge asec">5àsec</span></td><td><span class="uf-pill">PA</span></td><td><span class="tier-pill t4">T4</span></td><td>10 L</td></tr>
+          <tr><td>Porto Velho Centro</td><td><span class="brand-badge asec">5àsec</span></td><td><span class="uf-pill">RO</span></td><td><span class="tier-pill t4">T4</span></td><td>10 L</td></tr>
+          <tr><td>Rio Branco Satélite</td><td><span class="brand-badge asec">5àsec</span></td><td><span class="uf-pill">AC</span></td><td><span class="tier-pill t4">T4</span></td><td>11 L</td></tr>
+          <tr><td>Várzea Grande Ponte Nova</td><td><span class="brand-badge lavp">LavPop</span></td><td><span class="uf-pill">MT</span></td><td><span class="tier-pill t4">T4</span></td><td>11 L</td></tr>
+          <tr><td>Fortaleza Satélite</td><td><span class="brand-badge asec">5àsec</span></td><td><span class="uf-pill">CE</span></td><td><span class="tier-pill t4">T4</span></td><td>12 L</td></tr>
+          <tr><td>Natal Centro</td><td><span class="brand-badge asec">5àsec</span></td><td><span class="uf-pill">RN</span></td><td><span class="tier-pill t4">T4</span></td><td>12 L</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div><!-- /geral -->
+
+<!-- PLACEHOLDERS -->
+<!-- ══════════════════ 5àsec ══════════════════ -->
+<div class="screen" id="screen-5asec">
+  <div class="screen-header">
+    <h1>5àsec</h1>
+    <p>456 unidades · média 23,3 L/mês · Jan–Jun/2026</p>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi-card"><div class="kpi-label">Total unidades</div><div class="kpi-value">456</div><div class="kpi-sub">em 27 estados</div></div>
+    <div class="kpi-card"><div class="kpi-label">Volume total</div><div class="kpi-value">63,6<span style="font-family:'Inter',sans-serif;font-size:14px;color:var(--text-light)"> kL</span></div><div class="kpi-sub">litros no período</div></div>
+    <div class="kpi-card"><div class="kpi-label">Coletas realizadas</div><div class="kpi-value">2.736</div><div class="kpi-sub">sob demanda</div></div>
+    <div class="kpi-card hi-orange"><div class="kpi-label">Média mensal</div><div class="kpi-value">23,3<span style="font-family:'Inter',sans-serif;font-size:14px;color:var(--text-light)"> L</span></div><div class="kpi-sub">por unidade</div></div>
+    <div class="kpi-card"><div class="kpi-label">No Tier 1</div><div class="kpi-value">50%</div><div class="kpi-sub">229 unidades Padrão</div></div>
+  </div>
+
+  <div class="section-label">Tiers de geração — média mensal por unidade</div>
+  <div class="tier-row">
+    <div class="tier-card t1">
+      <div class="tier-badge">Tier 1 — Alto</div>
+      <div class="tier-range">Padrão · ≥ 25L/mês</div>
+      <div class="tier-count">229 <span class="tier-unit">unidades</span></div>
+      <div class="tier-breakdown">Padrão: 221 · Padrão 2: 5 · HUB: 2 · Usina: 1</div>
+    </div>
+    <div class="tier-card t2">
+      <div class="tier-badge">Tier 2 — Médio-alto</div>
+      <div class="tier-range">Express/Auto · 18–24L/mês</div>
+      <div class="tier-count">66 <span class="tier-unit">unidades</span></div>
+      <div class="tier-breakdown">Express: 54 · Autosserviço: 12</div>
+    </div>
+    <div class="tier-card t3">
+      <div class="tier-badge">Tier 3 — Médio-baixo</div>
+      <div class="tier-range">Satélite · 12–17L/mês</div>
+      <div class="tier-count">148 <span class="tier-unit">unidades</span></div>
+      <div class="tier-breakdown">Satélite: 148</div>
+    </div>
+    <div class="tier-card t4">
+      <div class="tier-badge">Tier 4 — Baixo</div>
+      <div class="tier-range">Ponto de Coleta · &lt; 12L/mês</div>
+      <div class="tier-count">13 <span class="tier-unit">unidades</span></div>
+      <div class="tier-breakdown">Ponto de Coleta: 13</div>
+    </div>
+  </div>
+
+  <!-- SAZONALIDADE -->
+  <div class="chart-row one">
+    <div class="chart-card">
+      <div class="chart-header">
+        <div class="chart-title">Sazonalidade — Padrão vs Satélite vs Express</div>
+        <div class="chart-insight">Padrão cresce consistentemente no inverno — pico em Jun/26. Satélite tem curva mais plana com menor sensibilidade sazonal. Express acompanha o Padrão em menor escala.</div>
+      </div>
+      <div class="chart-inner" style="height:280px;position:relative"><canvas id="asec_saz"></canvas></div>
+      <div class="chart-legend">
+        <span><span class="leg-dot" style="background:#b35a00"></span>Padrão · 30L média</span>
+        <span><span class="leg-dot" style="background:#FFBA86"></span>Express · 21L média</span>
+        <span><span class="leg-dot" style="background:#FFD4A8"></span>Satélite · 15L média</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- PERFORMANCE POR REGIÃO -->
+  <div class="chart-row two">
+    <div class="chart-card">
+      <div class="chart-header">
+        <div class="chart-title">Alta performance por região <span style="font-family:'Inter',sans-serif;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:#fdf0e6;color:#b35a00">Tiers 1 + 2</span></div>
+        <div class="chart-insight">Sul lidera em % T1+T2 — formato Padrão predomina e clima frio aumenta volume. Norte/CO tem mais unidades mas menor concentração nos tiers altos.</div>
+      </div>
+      <div class="chart-inner"><div class="reg-list" id="asec_reg_t12"></div></div>
+      <div class="chart-legend"><span><span class="leg-dot" style="background:#FFBA86"></span>5àsec</span></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <div class="chart-title">Baixa performance por região <span style="font-family:'Inter',sans-serif;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:#f5f5f5;color:#888">Tiers 3 + 4</span></div>
+        <div class="chart-insight">Norte/CO concentra a maior proporção de unidades T3+T4 — Satélites em cidades de clima quente com menor frequência de uso de roupas a seco.</div>
+      </div>
+      <div class="chart-inner"><div class="reg-list" id="asec_reg_t34"></div></div>
+      <div class="chart-legend"><span><span class="leg-dot" style="background:#FFD4A8"></span>5àsec</span></div>
+    </div>
+  </div>
+
+  <!-- TOP / BOTTOM -->
+  <div class="chart-row two">
+    <div class="chart-card">
+      <div class="chart-header">
+        <div class="chart-title">Top 10 unidades <span style="font-family:'Inter',sans-serif;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:#fdf0e6;color:#b35a00">maior volume médio</span></div>
+        <div class="chart-insight">Todas Padrão. Sul domina — PR, SC e RS lideram pelo clima. SP Capital aparece com unidades de alto fluxo de peças.</div>
+      </div>
+      <table class="data-table">
+        <thead><tr><th>Unidade</th><th>UF</th><th>Tipo</th><th>Tier</th><th>Média/mês</th></tr></thead>
+        <tbody>
+          <tr><td>Curitiba Batel</td><td><span class="uf-pill">PR</span></td><td>Padrão</td><td><span class="tier-pill t1">T1</span></td><td>30 L</td></tr>
+          <tr><td>Florianópolis Beiramar</td><td><span class="uf-pill">SC</span></td><td>Padrão</td><td><span class="tier-pill t1">T1</span></td><td>30 L</td></tr>
+          <tr><td>SP Jardim Europa</td><td><span class="uf-pill">SP</span></td><td>Padrão</td><td><span class="tier-pill t1">T1</span></td><td>30 L</td></tr>
+          <tr><td>Porto Alegre Moinhos</td><td><span class="uf-pill">RS</span></td><td>Padrão</td><td><span class="tier-pill t1">T1</span></td><td>30 L</td></tr>
+          <tr><td>BH Lourdes</td><td><span class="uf-pill">MG</span></td><td>Padrão</td><td><span class="tier-pill t1">T1</span></td><td>28 L</td></tr>
+          <tr><td>SP Moema</td><td><span class="uf-pill">SP</span></td><td>Padrão</td><td><span class="tier-pill t1">T1</span></td><td>27 L</td></tr>
+          <tr><td>Joinville Centro</td><td><span class="uf-pill">SC</span></td><td>Padrão</td><td><span class="tier-pill t1">T1</span></td><td>26 L</td></tr>
+          <tr><td>Rio de Janeiro Leblon</td><td><span class="uf-pill">RJ</span></td><td>Padrão</td><td><span class="tier-pill t1">T1</span></td><td>26 L</td></tr>
+          <tr><td>Campinas Cambuí</td><td><span class="uf-pill">SP</span></td><td>Padrão</td><td><span class="tier-pill t1">T1</span></td><td>25 L</td></tr>
+          <tr><td>Curitiba Agua Verde</td><td><span class="uf-pill">PR</span></td><td>Padrão</td><td><span class="tier-pill t1">T1</span></td><td>25 L</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <div class="chart-title">Bottom 10 unidades <span style="font-family:'Inter',sans-serif;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:#f5f5f5;color:#888">menor volume médio</span></div>
+        <div class="chart-insight">Pontos de Coleta e Satélites no Norte/CO. Clima equatorial e menor fluxo de peças explicam o baixo volume.</div>
+      </div>
+      <table class="data-table">
+        <thead><tr><th>Unidade</th><th>UF</th><th>Tipo</th><th>Tier</th><th>Média/mês</th></tr></thead>
+        <tbody>
+          <tr><td>Manaus Centro</td><td><span class="uf-pill">AM</span></td><td>Satélite</td><td><span class="tier-pill t4">T4</span></td><td>9 L</td></tr>
+          <tr><td>Belém Nazaré</td><td><span class="uf-pill">PA</span></td><td>Ponto Coleta</td><td><span class="tier-pill t4">T4</span></td><td>9 L</td></tr>
+          <tr><td>Porto Velho Centro</td><td><span class="uf-pill">RO</span></td><td>Ponto Coleta</td><td><span class="tier-pill t4">T4</span></td><td>9 L</td></tr>
+          <tr><td>Rio Branco Centro</td><td><span class="uf-pill">AC</span></td><td>Satélite</td><td><span class="tier-pill t4">T4</span></td><td>10 L</td></tr>
+          <tr><td>Macapá Centro</td><td><span class="uf-pill">AP</span></td><td>Ponto Coleta</td><td><span class="tier-pill t4">T4</span></td><td>10 L</td></tr>
+          <tr><td>Boa Vista Centro</td><td><span class="uf-pill">RR</span></td><td>Satélite</td><td><span class="tier-pill t3">T3</span></td><td>12 L</td></tr>
+          <tr><td>Santarém Centro</td><td><span class="uf-pill">PA</span></td><td>Satélite</td><td><span class="tier-pill t3">T3</span></td><td>12 L</td></tr>
+          <tr><td>Fortaleza Satélite</td><td><span class="uf-pill">CE</span></td><td>Satélite</td><td><span class="tier-pill t3">T3</span></td><td>13 L</td></tr>
+          <tr><td>Natal Centro</td><td><span class="uf-pill">RN</span></td><td>Satélite</td><td><span class="tier-pill t3">T3</span></td><td>13 L</td></tr>
+          <tr><td>Aracaju Centro</td><td><span class="uf-pill">SE</span></td><td>Satélite</td><td><span class="tier-pill t3">T3</span></td><td>14 L</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div><!-- /screen-5asec -->
+
+<!-- ══════════════════ LavPop ══════════════════ -->
+<div class="screen" id="screen-lavpop">
+  <div class="screen-header">
+    <h1>LavPop</h1>
+    <p>69 unidades · média 24,0 L/mês · Jan–Jun/2026</p>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi-card"><div class="kpi-label">Total unidades</div><div class="kpi-value">69</div><div class="kpi-sub">em 19 estados</div></div>
+    <div class="kpi-card"><div class="kpi-label">Volume total</div><div class="kpi-value">9,9<span style="font-family:'Inter',sans-serif;font-size:14px;color:var(--text-light)"> kL</span></div><div class="kpi-sub">litros no período</div></div>
+    <div class="kpi-card"><div class="kpi-label">Coletas realizadas</div><div class="kpi-value">414</div><div class="kpi-sub">sob demanda</div></div>
+    <div class="kpi-card hi-blue"><div class="kpi-label">Média mensal</div><div class="kpi-value">24,0<span style="font-family:'Inter',sans-serif;font-size:14px;color:var(--text-light)"> L</span></div><div class="kpi-sub">por unidade</div></div>
+    <div class="kpi-card"><div class="kpi-label">No Tier 1</div><div class="kpi-value">23%</div><div class="kpi-sub">16 unidades · Sul e SP</div></div>
+  </div>
+
+  <div class="section-label">Tiers de geração — média mensal por unidade</div>
+  <div class="tier-row">
+    <div class="tier-card" style="border:1px solid rgba(0,0,0,0.06);border-top:3px solid #5577dd;border-radius:var(--radius);background:var(--card);padding:20px 22px;transition:box-shadow .15s,transform .15s;cursor:default" onmouseenter="this.style.boxShadow='0 4px 14px rgba(0,0,0,0.08)';this.style.transform='translateY(-1px)'" onmouseleave="this.style.boxShadow='';this.style.transform=''">
+      <div class="tier-badge" style="background:#eef1ff;color:#5577dd">Tier 1 — Alto</div>
+      <div class="tier-range">média ≥ 25L/mês</div>
+      <div class="tier-count">16 <span class="tier-unit">unidades</span></div>
+      <div class="tier-breakdown">Sul e SP Capital · 23%</div>
+    </div>
+    <div class="tier-card" style="border:1px solid rgba(0,0,0,0.06);border-top:3px solid #8AA5FF;border-radius:var(--radius);background:var(--card);padding:20px 22px;transition:box-shadow .15s,transform .15s;cursor:default" onmouseenter="this.style.boxShadow='0 4px 14px rgba(0,0,0,0.08)';this.style.transform='translateY(-1px)'" onmouseleave="this.style.boxShadow='';this.style.transform=''">
+      <div class="tier-badge" style="background:#eef1ff;color:#5577dd">Tier 2 — Médio-alto</div>
+      <div class="tier-range">média 18–24L/mês</div>
+      <div class="tier-count">35 <span class="tier-unit">unidades</span></div>
+      <div class="tier-breakdown">Interior SP, BH/ES/RJ · 51%</div>
+    </div>
+    <div class="tier-card" style="border:1px solid rgba(0,0,0,0.06);border-top:3px solid #c4ceff;border-radius:var(--radius);background:var(--card);padding:20px 22px;transition:box-shadow .15s,transform .15s;cursor:default" onmouseenter="this.style.boxShadow='0 4px 14px rgba(0,0,0,0.08)';this.style.transform='translateY(-1px)'" onmouseleave="this.style.boxShadow='';this.style.transform=''">
+      <div class="tier-badge" style="background:#eef1ff;color:#5577dd">Tier 3 — Médio-baixo</div>
+      <div class="tier-range">média 12–17L/mês</div>
+      <div class="tier-count">14 <span class="tier-unit">unidades</span></div>
+      <div class="tier-breakdown">Nordeste e Norte/CO · 20%</div>
+    </div>
+    <div class="tier-card" style="border:1px solid rgba(0,0,0,0.06);border-top:3px solid #ddd;border-radius:var(--radius);background:var(--card);padding:20px 22px;transition:box-shadow .15s,transform .15s;cursor:default" onmouseenter="this.style.boxShadow='0 4px 14px rgba(0,0,0,0.08)';this.style.transform='translateY(-1px)'" onmouseleave="this.style.boxShadow='';this.style.transform=''">
+      <div class="tier-badge" style="background:#f0f0f0;color:#888">Tier 4 — Baixo</div>
+      <div class="tier-range">média &lt; 12L/mês</div>
+      <div class="tier-count">4 <span class="tier-unit">unidades</span></div>
+      <div class="tier-breakdown">Norte/CO extremo · 6%</div>
+    </div>
+  </div>
+
+  <!-- SAZONALIDADE -->
+  <div class="chart-row one">
+    <div class="chart-card">
+      <div class="chart-header">
+        <div class="chart-title">Sazonalidade mensal — LavPop</div>
+        <div class="chart-insight">Rede homogênea — quase toda Autosserviço. Padrão de uso mais irregular que a 5àsec, refletindo menor concentração geográfica. Inverno (mai/jun) tende a puxar volume para cima.</div>
+      </div>
+      <div class="chart-inner" style="height:280px;position:relative"><canvas id="lavpop_saz"></canvas></div>
+      <div class="chart-legend">
+        <span><span class="leg-dot" style="background:#8AA5FF"></span>Autosserviço · 66 un.</span>
+        <span><span class="leg-dot" style="background:#c4ceff"></span>Padrão · 2 un.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- PERFORMANCE POR REGIÃO -->
+  <div class="chart-row two">
+    <div class="chart-card">
+      <div class="chart-header">
+        <div class="chart-title">Alta performance por região <span style="font-family:'Inter',sans-serif;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:#eef1ff;color:#5577dd">Tiers 1 + 2</span></div>
+        <div class="chart-insight">Sul e SP Capital lideram em T1+T2 — unidades com maior fluxo de peças e clima mais frio. Norte/CO surpreende com volume absoluto alto pelo número de unidades.</div>
+      </div>
+      <div class="chart-inner"><div class="reg-list" id="lavpop_reg_t12"></div></div>
+      <div class="chart-legend"><span><span class="leg-dot" style="background:#8AA5FF"></span>LavPop</span></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <div class="chart-title">Baixa performance por região <span style="font-family:'Inter',sans-serif;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:#f5f5f5;color:#888">Tiers 3 + 4</span></div>
+        <div class="chart-insight">Norte/CO concentra a maior proporção de unidades T3+T4 — clima equatorial reduz uso de roupas a seco e puxa o volume médio para baixo.</div>
+      </div>
+      <div class="chart-inner"><div class="reg-list" id="lavpop_reg_t34"></div></div>
+      <div class="chart-legend"><span><span class="leg-dot" style="background:#c4ceff"></span>LavPop</span></div>
+    </div>
+  </div>
+
+  <!-- TOP / BOTTOM -->
+  <div class="chart-row two">
+    <div class="chart-card">
+      <div class="chart-header">
+        <div class="chart-title">Top 10 unidades <span style="font-family:'Inter',sans-serif;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:#eef1ff;color:#5577dd">maior volume médio</span></div>
+        <div class="chart-insight">Sul domina o topo da LavPop — SC, PR e RS lideram. Clima mais frio e maior frequência de uso de roupas pesadas explicam o padrão.</div>
+      </div>
+      <table class="data-table">
+        <thead><tr><th>Unidade</th><th>UF</th><th>Tipo</th><th>Tier</th><th>Média/mês</th></tr></thead>
+        <tbody>
+          <tr><td>Balneário Camboriú Centro</td><td><span class="uf-pill">SC</span></td><td>Autosserviço</td><td><span class="tier-pill t2" style="background:#eef1ff;color:#5577dd">T2</span></td><td>28 L</td></tr>
+          <tr><td>Curitiba Portão</td><td><span class="uf-pill">PR</span></td><td>Autosserviço</td><td><span class="tier-pill t2" style="background:#eef1ff;color:#5577dd">T2</span></td><td>27 L</td></tr>
+          <tr><td>Florianópolis Estreito</td><td><span class="uf-pill">SC</span></td><td>Autosserviço</td><td><span class="tier-pill t2" style="background:#eef1ff;color:#5577dd">T2</span></td><td>27 L</td></tr>
+          <tr><td>Porto Alegre S. Sebastião</td><td><span class="uf-pill">RS</span></td><td>Autosserviço</td><td><span class="tier-pill t2" style="background:#eef1ff;color:#5577dd">T2</span></td><td>26 L</td></tr>
+          <tr><td>Joinville Iririu</td><td><span class="uf-pill">SC</span></td><td>Autosserviço</td><td><span class="tier-pill t2" style="background:#eef1ff;color:#5577dd">T2</span></td><td>26 L</td></tr>
+          <tr><td>Caxias do Sul Rio Branco</td><td><span class="uf-pill">RS</span></td><td>Autosserviço</td><td><span class="tier-pill t2" style="background:#eef1ff;color:#5577dd">T2</span></td><td>25 L</td></tr>
+          <tr><td>SP Jardim Casablanca</td><td><span class="uf-pill">SP</span></td><td>Autosserviço</td><td><span class="tier-pill t2" style="background:#eef1ff;color:#5577dd">T2</span></td><td>25 L</td></tr>
+          <tr><td>Curitiba Campo Largo</td><td><span class="uf-pill">PR</span></td><td>Padrão</td><td><span class="tier-pill t1" style="background:#eef1ff;color:#5577dd">T1</span></td><td>30 L</td></tr>
+          <tr><td>SP Vila da Saúde</td><td><span class="uf-pill">SP</span></td><td>Autosserviço</td><td><span class="tier-pill t2" style="background:#eef1ff;color:#5577dd">T2</span></td><td>24 L</td></tr>
+          <tr><td>Campinas Centro</td><td><span class="uf-pill">SP</span></td><td>Autosserviço</td><td><span class="tier-pill t2" style="background:#eef1ff;color:#5577dd">T2</span></td><td>24 L</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <div class="chart-title">Bottom 10 unidades <span style="font-family:'Inter',sans-serif;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:#f5f5f5;color:#888">menor volume médio</span></div>
+        <div class="chart-insight">Norte/CO concentra as menores geradoras da LavPop. Santarém e Manaus lideram o bottom — clima equatorial reduz demanda por lavanderia a seco.</div>
+      </div>
+      <table class="data-table">
+        <thead><tr><th>Unidade</th><th>UF</th><th>Tipo</th><th>Tier</th><th>Média/mês</th></tr></thead>
+        <tbody>
+          <tr><td>Santarém Caranazal</td><td><span class="uf-pill">PA</span></td><td>Autosserviço</td><td><span class="tier-pill t3" style="background:#eef1ff;color:#5577dd">T3</span></td><td>9 L</td></tr>
+          <tr><td>Boa Vista Silvio Botelho</td><td><span class="uf-pill">RR</span></td><td>Autosserviço</td><td><span class="tier-pill t3" style="background:#eef1ff;color:#5577dd">T3</span></td><td>10 L</td></tr>
+          <tr><td>Macapá Centro</td><td><span class="uf-pill">AP</span></td><td>Autosserviço</td><td><span class="tier-pill t3" style="background:#eef1ff;color:#5577dd">T3</span></td><td>10 L</td></tr>
+          <tr><td>Várzea Grande Ponte Nova</td><td><span class="uf-pill">MT</span></td><td>Autosserviço</td><td><span class="tier-pill t3" style="background:#eef1ff;color:#5577dd">T3</span></td><td>11 L</td></tr>
+          <tr><td>Porto Velho Satélite</td><td><span class="uf-pill">RO</span></td><td>Satélite</td><td><span class="tier-pill t3" style="background:#eef1ff;color:#5577dd">T3</span></td><td>12 L</td></tr>
+          <tr><td>Itabaiana Centro</td><td><span class="uf-pill">SE</span></td><td>Autosserviço</td><td><span class="tier-pill t3" style="background:#eef1ff;color:#5577dd">T3</span></td><td>14 L</td></tr>
+          <tr><td>Caucaia Genipabu</td><td><span class="uf-pill">CE</span></td><td>Autosserviço</td><td><span class="tier-pill t3" style="background:#eef1ff;color:#5577dd">T3</span></td><td>15 L</td></tr>
+          <tr><td>Natal Petrópolis</td><td><span class="uf-pill">RN</span></td><td>Autosserviço</td><td><span class="tier-pill t3" style="background:#eef1ff;color:#5577dd">T3</span></td><td>16 L</td></tr>
+          <tr><td>Maceió Farol</td><td><span class="uf-pill">AL</span></td><td>Autosserviço</td><td><span class="tier-pill t3" style="background:#eef1ff;color:#5577dd">T3</span></td><td>17 L</td></tr>
+          <tr><td>Aracaju Atalaia</td><td><span class="uf-pill">SE</span></td><td>Autosserviço</td><td><span class="tier-pill t3" style="background:#eef1ff;color:#5577dd">T3</span></td><td>18 L</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div><!-- /screen-lavpop -->
+<div class="screen" id="screen-impacto">
+
+  <div class="screen-header">
+    <h1>Impacto Ambiental</h1>
+    <p>525 unidades · Jan–Jun/2026 · Metodologia GHG Protocol Escopo 3, Cat. 5</p>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpi-row">
+    <div class="kpi-card">
+      <div class="kpi-label">Volume destinado</div>
+      <div class="kpi-value">94.500<span style="font-family:'Inter',sans-serif;font-size:14px;color:var(--text-light)"> L</span></div>
+      <div class="kpi-sub">100% coprocessamento</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">CO₂e evitado</div>
+      <div class="kpi-value">65,0<span style="font-family:'Inter',sans-serif;font-size:14px;color:var(--text-light)"> t</span></div>
+      <div class="kpi-sub">vs destinação por incineração</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">CO₂e compensado</div>
+      <div class="kpi-value">3,8<span style="font-family:'Inter',sans-serif;font-size:14px;color:var(--text-light)"> t</span></div>
+      <div class="kpi-sub">emissões da logística</div>
+    </div>
+    <div class="kpi-card hi-blue">
+      <div class="kpi-label">Energia gerada</div>
+      <div class="kpi-value">314<span style="font-family:'Inter',sans-serif;font-size:14px;color:var(--text-light)"> MWh</span></div>
+      <div class="kpi-sub">via coprocessamento</div>
+    </div>
+    <div class="kpi-card hi-orange">
+      <div class="kpi-label">Reúso</div>
+      <div class="kpi-value">100<span style="font-family:'Inter',sans-serif;font-size:16px;color:var(--text-light)">%</span></div>
+      <div class="kpi-sub">Reaproveitamento energético</div>
+    </div>
+  </div>
+
+  <!-- GRÁFICO COMPARATIVO MENSAL -->
+  <div class="chart-row one">
+    <div class="chart-card">
+      <div class="chart-header">
+        <div class="chart-title">Evolução mensal — CO₂e evitado vs incineração</div>
+        <div class="chart-insight">Cada mês, o coprocessamento evita ~14× menos emissões que a incineração. O gap cresce no inverno — maior volume coletado amplifica o benefício ambiental da destinação correta.</div>
+      </div>
+      <div class="chart-inner" style="height:280px;position:relative">
+        <canvas id="imp_co2_mensal"></canvas>
+      </div>
+      <div class="chart-legend">
+        <span><span class="leg-dot" style="background:#e8e8e8"></span>CO₂e incineração (evitado)</span>
+        <span><span class="leg-dot" style="background:#FFBA86"></span>CO₂e coprocessamento (real)</span>
+        <span><span style="display:inline-block;width:18px;height:0;border-top:2px dashed #b35a00;vertical-align:middle;margin-right:4px"></span>Gap evitado</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3 BLOCOS DE IMPACTO -->
+  <div class="chart-row" style="grid-template-columns:1fr 1fr 1fr">
+
+    <!-- CO₂ EVITADO -->
+    <div class="chart-card" style="border-top:3px solid #b35a00">
+      <div style="width:40px;height:40px;border-radius:10px;background:#fdf0e6;display:flex;align-items:center;justify-content:center;margin-bottom:16px">
+        <img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/Pgo8IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDIwMDEwOTA0Ly9FTiIKICJodHRwOi8vd3d3LnczLm9yZy9UUi8yMDAxL1JFQy1TVkctMjAwMTA5MDQvRFREL3N2ZzEwLmR0ZCI+CjxzdmcgdmVyc2lvbj0iMS4wIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiB3aWR0aD0iNTEyLjAwMDAwMHB0IiBoZWlnaHQ9IjUxMi4wMDAwMDBwdCIgdmlld0JveD0iMCAwIDUxMi4wMDAwMDAgNTEyLjAwMDAwMCIKIHByZXNlcnZlQXNwZWN0UmF0aW89InhNaWRZTWlkIG1lZXQiPgoKPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMC4wMDAwMDAsNTEyLjAwMDAwMCkgc2NhbGUoMC4xMDAwMDAsLTAuMTAwMDAwKSIKZmlsbD0iI2IzNWEwMCIgc3Ryb2tlPSJub25lIj4KPHBhdGggZD0iTTI1MTcgNDIwOSBjLTI3MSAtMzEgLTU1NiAtMTQwIC03NzcgLTI5NyAtMTgwIC0xMjcgLTM4OSAtMzYxIC00ODIKLTUzOCBsLTMyIC02MSAtOTIgLTYgYy00ODcgLTMyIC05MDggLTM0OSAtMTA2NCAtODAyIC0xMDcgLTMwOCAtODggLTYyNyA1NQotOTIxIDE1OCAtMzI1IDQzNyAtNTQ5IDgwNSAtNjQ2IGw4NSAtMjMgMTU1MCAtMyBjMTE2NyAtMyAxNTcxIDAgMTYzNSA5IDM4OQo1NCA3MjEgMzI2IDg1NCA3MDAgMTAyIDI4NCA4MyA1NzYgLTU0IDg0OSAtMTI5IDI1NiAtMzgwIDQ2NiAtNjUxIDU0NCBsLTU3CjE3IC0yNyA3NyBjLTE2MCA0NTIgLTUxMyA4MjAgLTk1NSA5OTMgLTI1MCA5OSAtNTM4IDEzOCAtNzkzIDEwOHogbS02MzUKLTEzMTAgYzI5IC02IDg1IC0yNiAxMjUgLTQ1IDEyMyAtNTggMTkzIC0xNjUgMTkzIC0yOTUgMCAtNzkgLTE5IC0xMTUgLTY4Ci0xMjggLTExNSAtMzMgLTIxMiAxMSAtMjEyIDk1IDAgMzMgLTIzIDg1IC00NiAxMDYgLTExIDkgLTQxIDIyIC02NyAyNyAtOTQKMjIgLTE3MyAtMjAgLTE5NyAtMTAyIC04IC0yOSAtMTAgLTEzMyAtOCAtMzMyIDMgLTI2OCA0IC0yOTIgMjMgLTMyMyA1NyAtOTQKMjI3IC05MyAyNzMgMSA3IDE1IDE3IDUzIDIyIDg0IDE0IDg0IDMyIDk3IDEzNSAxMDIgODMgMyA4NSAzIDExNiAtMjggMzEgLTMyCjMxIC0zMyAyNyAtMTE0IC02IC0xMDcgLTM0IC0xNzEgLTEwMiAtMjM1IC0xMDAgLTk0IC0yMDAgLTEyNyAtMzcxIC0xMTkgLTEzMwo1IC0yMDMgMjkgLTI3NSA5NCAtNTggNTIgLTg1IDkzIC0xMDggMTY1IC0xNSA0NiAtMTcgOTkgLTE3IDM5OCAwIDI5OSAyIDM1MgoxNyAzOTggNDEgMTI4IDEzMSAyMDkgMjcxIDI0NyA2MyAxNyAxOTcgMTkgMjY5IDR6IG0xMDMxIC01IGMxMzQgLTM1IDIwNiAtOTEKMjYxIC0yMDQgbDMxIC02NSAzIC0zNTAgYzQgLTQwNSAwIC00MzYgLTczIC01MzMgLTc1IC0xMDIgLTE5MyAtMTUyIC0zNTcKLTE1MiAtMTUwIDAgLTI0NiAzMCAtMzIzIDEwMSAtNTQgNTAgLTgwIDkwIC0xMDMgMTYxIC0xNSA0NiAtMTcgOTkgLTE3IDM5MyAwCjMyNCAxIDM0MyAyMiA0MTEgNTEgMTYyIDE5OCAyNTIgNDEyIDI1MyA0NiAxIDExMCAtNiAxNDQgLTE1eiBtNzc4IDAgYzkyIC0yOAoxNTkgLTExMyAxNTkgLTIwNSAwIC0zMyAtNDMgLTExOSAtNzUgLTE1MCAtMTQgLTEzIC03NiAtNTggLTEzOCAtOTkgLTE1NgotMTA1IC0xNTUgLTExMCAyNiAtMTEwIDEyNSAwIDE0NiAtMiAxNTkgLTE3IDI2IC0yOSAzMCAtNTkgMTQgLTk3IGwtMTUgLTM2Ci0yMjUgMCBjLTI3MSAwIC0yNjYgLTIgLTI2NiAxMDggMCA4OCAyNyAxMzEgMTMxIDIwOCAxNTMgMTEzIDE4MCAxMzYgMTk1IDE2NQoxNCAyOCAxNCAzMyAwIDU1IC0xOSAyOCAtNTkgNDAgLTk1IDI4IC0xOCAtNyAtMzAgLTIyIC00MSAtNTMgLTE2IC00NiAtNDcKLTcwIC05MyAtNzEgLTQzIDAgLTY1IDE2IC03NiA1NyAtMjAgNzMgMjAgMTU4IDkyIDE5NSA4MyA0MiAxNTcgNDkgMjQ4IDIyeiIvPgo8cGF0aCBkPSJNMjcxNiAyNjYwIGMtNDggLTE1IC04NCAtNTggLTk2IC0xMTQgLTggLTMzIC0xMCAtMTQ5IC04IC0zMzEgMwotMjcyIDQgLTI4MSAyNiAtMzE3IDQyIC02OCAxNjUgLTg5IDIzMiAtNDAgNTcgNDIgNjAgNjAgNjAgMzg3IDAgMjczIC0yIDMwNAotMTkgMzQyIC0xMiAyNSAtMzIgNDggLTUwIDU4IC0zOSAyMCAtMTA4IDI3IC0xNDUgMTV6Ii8+CjwvZz4KPC9zdmc+Cg==" width="20" height="20">
+      </div>
+      <div class="section-label" style="margin-bottom:8px">CO₂e evitado</div>
+      <div style="font-family:'Libre Caslon Text',serif;font-size:36px;color:var(--text);line-height:1;margin-bottom:4px">65,0 <span style="font-family:'Inter',sans-serif;font-size:14px;color:var(--text-light)">tCO₂e</span></div>
+      <div style="font-size:12px;color:var(--text-mid);margin-bottom:16px;line-height:1.5">123 t PCE × 0,53 kg CO₂e/kg<br>(Δ incineração–coprocessamento)</div>
+      <div style="background:var(--card-warm);border-radius:var(--radius-sm);padding:16px">
+        <div style="font-size:11px;color:var(--text-light);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Escala do impacto</div>
+        <div style="font-family:'Libre Caslon Text',serif;font-size:28px;color:var(--text);line-height:1">29</div>
+        <div style="font-size:13px;color:var(--text-mid);margin-top:4px">carros fora de circulação</div>
+        <div style="font-size:11px;color:var(--text-light);margin-top:4px">por 1 ano · ref. CETESB 2023</div>
+      </div>
+    </div>
+
+    <!-- CO₂ COMPENSADO -->
+    <div class="chart-card" style="border-top:3px solid #FFBA86">
+      <div style="width:40px;height:40px;border-radius:10px;background:#fff3e8;display:flex;align-items:center;justify-content:center;margin-bottom:16px">
+        <img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/Pgo8IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDIwMDEwOTA0Ly9FTiIKICJodHRwOi8vd3d3LnczLm9yZy9UUi8yMDAxL1JFQy1TVkctMjAwMTA5MDQvRFREL3N2ZzEwLmR0ZCI+CjxzdmcgdmVyc2lvbj0iMS4wIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiB3aWR0aD0iNTEyLjAwMDAwMHB0IiBoZWlnaHQ9IjUxMi4wMDAwMDBwdCIgdmlld0JveD0iMCAwIDUxMi4wMDAwMDAgNTEyLjAwMDAwMCIKIHByZXNlcnZlQXNwZWN0UmF0aW89InhNaWRZTWlkIG1lZXQiPgoKPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMC4wMDAwMDAsNTEyLjAwMDAwMCkgc2NhbGUoMC4xMDAwMDAsLTAuMTAwMDAwKSIKZmlsbD0iI0ZGQkE4NiIgc3Ryb2tlPSJub25lIj4KPHBhdGggZD0iTTU2IDUxMDQgYy0yMyAtMjMgLTIwIC02MCAxOCAtMTk3IDE5IC02NyA1MCAtMTg3IDcwIC0yNjcgODcgLTM2MwoxNDcgLTU0OSAyNDEgLTc0NSAxOTkgLTQxMyA0OTQgLTc0MyA4MDUgLTkwMCA4MyAtNDIgMjA1IC04NSAyMzkgLTg1IDkgMCAzOAoyOCA2MyA2MyAxNjcgMjI2IDM4NyA0MDggNjYxIDU0NSBsMTE5IDU5IC02OSA0MSBjLTY3IDQwIC0zNTMgMTgwIC01MjUgMjU3Ci00OCAyMSAtODYgNDAgLTg1IDQxIDUgNCA0MTggLTg1IDQ4NSAtMTA1IDk1IC0yOSAxODAgLTY4IDI3NyAtMTI2IGw3OSAtNDgKNjAgMTcgYzIyOSA2NCA0OTggMTIwIDY4NiAxNDEgMzAgMyA2NyA4IDgzIDExIGwyNyA2IC01MiA3NiBjLTY1IDkzIC0yNTMgMjg1Ci0zNjggMzc0IC0xMjYgOTggLTI3MyAxOTAgLTQyMiAyNjggLTM2MSAxODYgLTYwMSAyNDUgLTEyNzggMzA5IC0xMTggMTIgLTI2NgoyOCAtMzI4IDM2IC0yMDggMjkgLTQzNiA5OSAtNjQxIDE5OSAtMTAzIDUwIC0xMjIgNTQgLTE0NSAzMHoiLz4KPHBhdGggZD0iTTQ5MDUgNDAxOCBjLTE1NiAtODAgLTM4MiAtMTU1IC02MDggLTIwMyAtMTg0IC0zOSAtMzM1IC02MSAtNzIyCi0xMDUgLTY3NyAtNzcgLTk1NyAtMTM0IC0xMjQ1IC0yNTYgLTQ4MyAtMjAzIC03NzcgLTUxMyAtMTAwNCAtMTA1NyAtMjIxCi01MzIgLTMxOCAtMTA3MCAtMzAyIC0xNjkyIDExIC00NzcgNjUgLTcxNyAxNTcgLTcwMyAxMiAyIDMwIDE0IDQxIDI4IDE4IDI1CjE4IDI3IC0yIDExNSAtNjEgMjYwIC01NSA1NzAgMTUgODcwIDg5IDM3NyAyMzcgNjYwIDQ1NiA4NzAgMjM0IDIyNCA1MDcgMzcxCjk0MiA1MDUgMTM5IDQzIDE2MyA0OCAxNzUgMzYgMjEgLTIxIDEwIC0zMSAtNzEgLTY3IC0xOTIgLTg4IC00NTEgLTIyMiAtNTI3Ci0yNzQgLTIxMiAtMTQ0IC0zODQgLTMyMiAtNTE3IC01MzUgLTEwMCAtMTYxIC0xNjAgLTMxNyAtMTY5IC00MzggLTYgLTcwIC00Ci04MCAxOCAtMTEyIDM0IC01MCA3NiAtNTEgMjAxIC01IDIxMSA3NiAzNzMgMTA4IDg1MiAxNzAgNjY1IDg2IDg5OCAxNTggMTIzMwozODIgMzQ0IDIyOSA2MDMgNTM0IDgwNiA5NDggMTIzIDI0OSAxNzQgNDA2IDMwNSA5MzAgNDQgMTc2IDk0IDM2NyAxMTAgNDI1CjM3IDEyNiAzOSAxNjIgOSAxOTAgLTMxIDI5IC02MiAyNCAtMTUzIC0yMnoiLz4KPC9nPgo8L3N2Zz4K" width="20" height="20">
+      </div>
+      <div class="section-label" style="margin-bottom:8px">CO₂e compensado</div>
+      <div style="font-family:'Libre Caslon Text',serif;font-size:36px;color:var(--text);line-height:1;margin-bottom:4px">3,8 <span style="font-family:'Inter',sans-serif;font-size:14px;color:var(--text-light)">tCO₂e</span></div>
+      <div style="font-size:12px;color:var(--text-mid);margin-bottom:16px;line-height:1.5">3.150 coletas × 100km × 0,10t<br>× 0,12 kg CO₂e/t.km (logística)</div>
+      <div style="background:var(--card-warm);border-radius:var(--radius-sm);padding:16px">
+        <div style="font-size:11px;color:var(--text-light);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Escala do impacto</div>
+        <div style="font-family:'Libre Caslon Text',serif;font-size:28px;color:var(--text);line-height:1">38</div>
+        <div style="font-size:13px;color:var(--text-mid);margin-top:4px">árvores plantadas</div>
+        <div style="font-size:11px;color:var(--text-light);margin-top:4px">equivalência à compensação da logística · ref. MMA</div>
+      </div>
+    </div>
+
+    <!-- ENERGIA GERADA -->
+    <div class="chart-card" style="border-top:3px solid #8AA5FF">
+      <div style="width:40px;height:40px;border-radius:10px;background:#eef1ff;display:flex;align-items:center;justify-content:center;margin-bottom:16px">
+        <img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/Pgo8IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDIwMDEwOTA0Ly9FTiIKICJodHRwOi8vd3d3LnczLm9yZy9UUi8yMDAxL1JFQy1TVkctMjAwMTA5MDQvRFREL3N2ZzEwLmR0ZCI+CjxzdmcgdmVyc2lvbj0iMS4wIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiB3aWR0aD0iNTEyLjAwMDAwMHB0IiBoZWlnaHQ9IjUxMi4wMDAwMDBwdCIgdmlld0JveD0iMCAwIDUxMi4wMDAwMDAgNTEyLjAwMDAwMCIKIHByZXNlcnZlQXNwZWN0UmF0aW89InhNaWRZTWlkIG1lZXQiPgoKPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMC4wMDAwMDAsNTEyLjAwMDAwMCkgc2NhbGUoMC4xMDAwMDAsLTAuMTAwMDAwKSIKZmlsbD0iIzhBQTVGRiIgc3Ryb2tlPSJub25lIj4KPHBhdGggZD0iTTIzMTUgNDg2NSBjLTQyNyAtNjkgLTgyMiAtMzIxIC0xMDU3IC02NzUgLTg5IC0xMzQgLTE0NSAtMjQ3IC0xOTIKLTM5MiAtNTcgLTE3NCAtNzEgLTI3NiAtNzAgLTQ5OCAxIC0yMjEgMTYgLTMxOCA4MCAtNTAxIDgwIC0yMjkgMTg0IC0zOTQgMzg0Ci02MDYgNzcgLTgxIDE2OSAtMTg4IDIwNSAtMjM4IDEyMiAtMTcyIDIwNCAtMzU5IDI0NyAtNTY1IGwyNCAtMTE1IDEyNyAtMwoxMjcgLTMgMCA4NzUgMCA4NzQgLTE5NyA0IC0xOTggMyAtNzUgMzYgYy0xOTkgOTYgLTI5MyAzMDYgLTIzMCA1MTEgNjMgMjA2CjI2MyAzMjkgNDg1IDI5NyA5NCAtMTMgMTY0IC00NyAyMzQgLTExNCAxMTAgLTEwNSAxNDAgLTIwMyAxNDEgLTQ1NyBsMCAtMTI4CjIxMCAwIDIxMCAwIDAgMTM4IGMwIDI0NSAzMCAzNDIgMTM5IDQ0NiA3MiA2OCAxNDIgMTAyIDIzNiAxMTUgMjg0IDQxIDUyMwotMTc3IDUwMiAtNDU3IC0xMSAtMTQ3IC0xMDUgLTI4MCAtMjQ2IC0zNTAgbC03NSAtMzcgLTIwMyAtMyAtMjAzIC00IDIgLTg3MQozIC04NzIgMTI5IDAgMTMwIDAgMTkgOTUgYzM5IDIwMyAxMzEgNDE2IDI1MiA1ODYgMzYgNDkgMTI4IDE1NyAyMDUgMjM4IDIwNgoyMTcgMzEzIDM4OSAzOTAgNjI2IDU5IDE4MSA3NSAyODYgNzUgNDk1IC0xIDIxMSAtMTYgMzEyIC03NSA0ODYgLTE3OSA1MzcKLTYxOCA5MzEgLTExNjggMTA1MCAtMTI5IDI4IC00MzUgMzUgLTU2NyAxNHoiLz4KPHBhdGggZD0iTTE4NDkgMzcyMCBjLTE2MiAtMjcgLTI2NyAtMjAxIC0yMTUgLTM1OCAyNSAtNzMgOTMgLTE0NiAxNjIgLTE3MQo0OCAtMTggNzggLTIxIDIzMSAtMjEgbDE3NiAwIC01IDE2OCBjLTQgMTQ0IC04IDE3NCAtMjcgMjE4IC01MyAxMjEgLTE4MiAxODYKLTMyMiAxNjR6Ii8+CjxwYXRoIGQ9Ik0zMTU5IDM3MjAgYy05NCAtMTYgLTE3MCAtNzUgLTIxMCAtMTY1IC0yMCAtNDQgLTIzIC03MSAtMjcgLTIxNwpsLTQgLTE2OCAxNzUgMCBjMTUzIDAgMTg0IDMgMjMxIDIwIDExMCA0MiAxODQgMTYwIDE3MyAyODAgLTE1IDE2OSAtMTYzIDI3OAotMzM4IDI1MHoiLz4KPHBhdGggZD0iTTIzNTAgMjE0NSBsMCAtODc1IDIxMCAwIDIxMCAwIDAgODc1IDAgODc1IC0yMTAgMCAtMjEwIDAgMCAtODc1eiIvPgo8cGF0aCBkPSJNMTc4MSAxMDk0IGMtMTggLTIzIC0yMSAtNDEgLTIxIC0xMzQgMCAtOTMgMyAtMTExIDIxIC0xMzQgbDIwIC0yNgo3NTkgMCA3NTkgMCAyMCAyNiBjMTggMjMgMjEgNDEgMjEgMTM0IDAgOTMgLTMgMTExIC0yMSAxMzQgbC0yMCAyNiAtNzU5IDAKLTc1OSAwIC0yMCAtMjZ6Ii8+CjxwYXRoIGQ9Ik0yMDYwIDY0MSBjMCAtMTggMTY0IC0zNTcgMTgzIC0zNzggMjAgLTIzIDIzIC0yMyAyOTIgLTIzIDIwMSAwIDI3NQozIDI4OCAxMyAxNCAxMCAxNTggMjk5IDE4OCAzNzUgbDkgMjIgLTQ4MCAwIGMtMjY1IDAgLTQ4MCAtNCAtNDgwIC05eiIvPgo8cGF0aCBkPSJNMTc2NSA0NzMgYy01NSAtMTQgLTc1IC04MyAtMzUgLTEyMyAxOCAtMTggMzMgLTIwIDE2MSAtMjAgbDE0MCAwCi02IDIzIGMtNCAxMiAtMTkgNDUgLTM0IDcyIGwtMjYgNTAgLTkwIDIgYy00OSAwIC05OSAtMSAtMTEwIC00eiIvPgo8cGF0aCBkPSJNMzEwNCA0NjggYy0xMSAtMTcgLTY0IC0xMjggLTY0IC0xMzQgMCAtMiA2NyAtNCAxNDkgLTQgbDE1MCAwIDIwCjI2IGMyNyAzNSAyNiA1NyAtMyA5MSAtMjMgMjcgLTI4IDI4IC0xMzQgMzEgLTg0IDMgLTExMiAxIC0xMTggLTEweiIvPgo8L2c+Cjwvc3ZnPgo=" width="20" height="20">
+      </div>
+      <div class="section-label" style="margin-bottom:8px">Energia gerada</div>
+      <div style="font-family:'Libre Caslon Text',serif;font-size:36px;color:var(--text);line-height:1;margin-bottom:4px">314 <span style="font-family:'Inter',sans-serif;font-size:14px;color:var(--text-light)">MWh</span></div>
+      <div style="font-size:12px;color:var(--text-mid);margin-bottom:16px;line-height:1.5">123 t PCE × 2.200 kcal/kg<br>÷ 860.000 · ref. ABCP / Orizon</div>
+      <div style="background:var(--card-warm);border-radius:var(--radius-sm);padding:16px">
+        <div style="font-size:11px;color:var(--text-light);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Escala do impacto</div>
+        <div style="font-family:'Libre Caslon Text',serif;font-size:28px;color:var(--text);line-height:1">1.891</div>
+        <div style="font-size:13px;color:var(--text-mid);margin-top:4px">residências abastecidas</div>
+        <div style="font-size:11px;color:var(--text-light);margin-top:4px">por 1 mês · ref. ANEEL 2023</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- NOTA METODOLÓGICA -->
+  <div style="background:#F0EDEA;border-radius:var(--radius-sm);padding:14px 18px;font-size:11px;color:var(--text-light);line-height:1.8;margin-top:8px">
+    <strong style="color:var(--text-mid);font-size:12px">Nota metodológica</strong><br>
+    CO₂e evitado: diferença entre incineração sem recuperação (0,57 kg CO₂e/kg PCE) e coprocessamento em forno de clínquer (0,04 kg CO₂e/kg PCE) · GHG Protocol Escopo 3, Cat. 5 · PBGHG/FGV · IPCC 2019 Vol.5 Cap.5 · CONAMA 499/2020.<br>
+    CO₂e logística: fator de emissão 0,12 kg CO₂e/t.km para transporte rodoviário de carga · IPCC 2006. Distância média estimada de 100km por coleta. Absorção de CO₂ por árvore: 0,10 tCO₂/ano · MMA.
+    Energia gerada: poder calorífico inferior do PCE de 2.200 kcal/kg (solvente halogenado) · ABCP — Co-processamento em Cimenteiras. Consumo médio residencial: 166 kWh/mês · ANEEL 2023.
+  </div>
+
+</div><!-- /screen-impacto -->
+<div class="screen" id="screen-insights">
+
+  <div class="screen-header">
+    <h1>Insights</h1>
+    <p>Principais padrões identificados · Jan–Jun/2026 · 525 unidades</p>
+  </div>
+
+  <!-- CARD PRETO -->
+  <div style="background:#222222;border-radius:var(--radius);padding:40px 48px;margin-bottom:40px;transition:transform .15s,box-shadow .15s;cursor:default"
+    onmouseenter="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,0.25)'"
+    onmouseleave="this.style.transform='';this.style.boxShadow=''">
+    <div style="font-size:11px;font-weight:600;letter-spacing:.1em;color:#FFBA86;margin-bottom:20px;text-transform:uppercase">● Resultado do semestre</div>
+    <div style="font-family:'Libre Caslon Text',serif;font-size:28px;line-height:1.3;color:#fff;margin-bottom:16px">525 lojas. 94.500 litros de PCE. Cada bombona rastreada, cada coleta documentada, cada litro com destino certificado.</div>
+    <div style="font-size:14px;line-height:1.7;color:rgba(255,255,255,0.6);max-width:680px">A migração para coprocessamento já está feita — 65 toneladas de CO₂e evitadas no semestre. O próximo capítulo é tornar essa operação cada vez mais eficiente: consolidar coletas, ampliar cobertura e usar os dados para tomar decisões melhores em toda a rede.</div>
+  </div>
+
+  <!-- O QUE OS DADOS REVELAM -->
+  <div style="font-size:11px;font-weight:600;letter-spacing:.1em;color:#b35a00;margin-bottom:16px;text-transform:uppercase">● O que os dados revelam</div>
+  <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:40px">
+
+    <div class="chart-card" style="display:flex;gap:20px;align-items:flex-start;cursor:default">
+      <div style="font-size:12px;font-weight:600;color:#b35a00;flex-shrink:0;padding-top:3px;width:20px">01</div>
+      <div style="flex:1">
+        <div style="font-family:'Libre Caslon Text',serif;font-size:15px;line-height:1.35;color:#222;margin-bottom:6px">O PCE é um espelho da operação — resíduo revela frequência de lavagem</div>
+        <div style="font-size:12px;line-height:1.65;color:#666">Cada ciclo de lavagem consome e contamina uma fração do limpador. Quando o PCE atinge o limite de contaminação, é descartado. O volume de resíduo por unidade é um proxy direto de peças lavadas — o resíduo conta a história da demanda.</div>
+      </div>
+    </div>
+
+    <div class="chart-card" style="display:flex;gap:20px;align-items:flex-start;cursor:default">
+      <div style="font-size:12px;font-weight:600;color:#b35a00;flex-shrink:0;padding-top:3px;width:20px">02</div>
+      <div style="flex:1">
+        <div style="font-family:'Libre Caslon Text',serif;font-size:15px;line-height:1.35;color:#222;margin-bottom:6px">Sazonalidade de resíduo = sazonalidade de lavagem — e o inverno confirma</div>
+        <div style="font-size:12px;line-height:1.65;color:#666">No inverno, a demanda por lavagem de casacos e ternos sobe — e o volume de PCE sobe junto. O Sul sente mais, o Norte/CO sente menos. Os dados de PCE já permitem construir uma curva de sazonalidade por região, sem precisar de dado de faturamento.</div>
+      </div>
+    </div>
+
+    <div class="chart-card" style="display:flex;gap:20px;align-items:flex-start;cursor:default">
+      <div style="font-size:12px;font-weight:600;color:#b35a00;flex-shrink:0;padding-top:3px;width:20px">03</div>
+      <div style="flex:1">
+        <div style="font-family:'Libre Caslon Text',serif;font-size:15px;line-height:1.35;color:#222;margin-bottom:6px">Existe um ratio ideal entre lavagem e resíduo — e ele pode detectar problemas</div>
+        <div style="font-size:12px;line-height:1.65;color:#666">A taxa de perda de PCE é de 2–5% por ciclo de lavagem. Para cada tipo de loja existe um volume esperado de resíduo por mês. Unidades fora desse benchmark podem indicar subcoleta, PCE não rastreado, vazamento ou equipamento com problema.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- AÇÕES PRIORITÁRIAS -->
+  <div style="font-size:11px;font-weight:600;letter-spacing:.1em;color:#b35a00;margin-bottom:16px;text-transform:uppercase">● Ações prioritárias</div>
+  <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:40px">
+
+    <div class="chart-card" style="display:flex;gap:20px;align-items:flex-start;cursor:default">
+      <div style="font-size:12px;font-weight:600;color:#b35a00;flex-shrink:0;padding-top:3px;width:20px">01</div>
+      <div style="flex:1">
+        <div style="font-family:'Libre Caslon Text',serif;font-size:15px;line-height:1.35;color:#222;margin-bottom:6px">Cruzar volume de resíduo com consumo de PCE virgem — unidade por unidade</div>
+        <div style="font-size:12px;line-height:1.65;color:#666">O ratio resíduo/consumo valida se cada unidade opera dentro do padrão esperado. Uma loja gerando menos que o esperado pode estar comprando PCE fora do circuito rastreável. Uma gerando mais pode ter equipamento com problema.</div>
+      </div>
+    </div>
+
+    <div class="chart-card" style="display:flex;gap:20px;align-items:flex-start;cursor:default">
+      <div style="font-size:12px;font-weight:600;color:#b35a00;flex-shrink:0;padding-top:3px;width:20px">02</div>
+      <div style="flex:1">
+        <div style="font-family:'Libre Caslon Text',serif;font-size:15px;line-height:1.35;color:#222;margin-bottom:6px">Usar a sazonalidade para otimizar compra de PCE virgem na rede</div>
+        <div style="font-size:12px;line-height:1.65;color:#666">O Sul consome mais no inverno, o Nordeste tem demanda mais estável. Com essa curva, a franqueadora orienta franqueados na compra de PCE virgem: compra pouco → para em pico; compra demais → estoque parado e risco de armazenamento.</div>
+      </div>
+    </div>
+
+    <div class="chart-card" style="display:flex;gap:20px;align-items:flex-start;cursor:default">
+      <div style="font-size:12px;font-weight:600;color:#b35a00;flex-shrink:0;padding-top:3px;width:20px">03</div>
+      <div style="flex:1">
+        <div style="font-family:'Libre Caslon Text',serif;font-size:15px;line-height:1.35;color:#222;margin-bottom:6px">Consolidar Satélites T4 no Norte/CO e usar o relatório com os franqueados</div>
+        <div style="font-size:12px;line-height:1.65;color:#666">Satélites T4 próximos podem compartilhar coleta — menos viagens, mesma conformidade. E os dados de tier já são uma conversa pronta com cada franqueado: o Top 10 mostra quem performa bem e por quê; o Bottom 10 abre a conversa certa.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- PARA AVANÇAR JUNTOS -->
+  <div style="font-size:11px;font-weight:600;letter-spacing:.1em;color:#b35a00;margin-bottom:4px;text-transform:uppercase">● Para avançar juntos</div>
+  <div style="font-size:13px;color:#666;margin-bottom:16px">Dados que a 5àsec pode compartilhar para enriquecer as próximas análises.</div>
+  <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:40px">
+
+    <div class="chart-card" style="display:flex;gap:20px;align-items:flex-start;cursor:default">
+      <div style="font-size:12px;font-weight:600;color:#b35a00;flex-shrink:0;padding-top:3px;width:20px">01</div>
+      <div style="flex:1">
+        <div style="font-family:'Libre Caslon Text',serif;font-size:15px;line-height:1.35;color:#222;margin-bottom:6px">Consumo de PCE virgem por unidade</div>
+        <div style="font-size:12px;line-height:1.65;color:#666">Desbloqueia o ratio resíduo/consumo. A Musa entrega de volta um benchmark de eficiência por tipo de loja e região — transformando conformidade ambiental em ferramenta de diagnóstico operacional.</div>
+      </div>
+    </div>
+
+    <div class="chart-card" style="display:flex;gap:20px;align-items:flex-start;cursor:default">
+      <div style="font-size:12px;font-weight:600;color:#b35a00;flex-shrink:0;padding-top:3px;width:20px">02</div>
+      <div style="flex:1">
+        <div style="font-family:'Libre Caslon Text',serif;font-size:15px;line-height:1.35;color:#222;margin-bottom:6px">Número de ciclos de lavagem por mês e por unidade</div>
+        <div style="font-size:12px;line-height:1.65;color:#666">Com ciclos + volume de resíduo calculamos a taxa de perda de PCE por unidade. Isso identifica máquinas com desgaste acima do esperado e orienta manutenção preventiva antes que vire custo ou risco ambiental.</div>
+      </div>
+    </div>
+
+    <div class="chart-card" style="display:flex;gap:20px;align-items:flex-start;cursor:default">
+      <div style="font-size:12px;font-weight:600;color:#b35a00;flex-shrink:0;padding-top:3px;width:20px">03</div>
+      <div style="flex:1">
+        <div style="font-family:'Libre Caslon Text',serif;font-size:15px;line-height:1.35;color:#222;margin-bottom:6px">Calendário de expansão por região</div>
+        <div style="font-size:12px;line-height:1.65;color:#666">Com as novas unidades previstas para Jul–Dez/2026, pré-alocamos transportadores e mapeamos rotas. Cada nova loja entra na operação com conformidade total desde o primeiro dia — sem período de adequação.</div>
+      </div>
+    </div>
+
+  </div>
+
+</div><!-- /screen-insights -->
+
+<script>
+function showScreen(id, btn) {
+  document.querySelectorAll('.screen').forEach(s => { s.classList.remove('active'); s.style.display = 'none'; });
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  const el = document.getElementById('screen-' + id);
+  if (el) { el.classList.add('active'); el.style.display = 'block'; }
+  btn.classList.add('active');
+}
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.screen').forEach(s => { s.style.display = 'none'; s.classList.remove('active'); });
+  const g = document.getElementById('screen-geral');
+  if (g) { g.style.display = 'block'; g.classList.add('active'); }
+});
+
+// ── TRADUÇÕES ──
+const i18n = {
+  pt: {
+    'units': 'unidades',
+    'nav.geral':     'Visão Geral',
+    'nav.5asec':     '5àsec',
+    'nav.lavpop':    'LavPop',
+    'nav.impacto':   'Impacto Ambiental',
+    'nav.insights':  'Insights',
+    'header.sub':    'Relatório Semestral de Resíduos · Musa',
+    'screen.title':  'Visão Geral',
+    'screen.sub':    'Gestão de Percloroetileno (PCE) · todas as unidades · Jan–Jun/2026',
+    'kpi.unidades':  'Unidades ativas',
+    'kpi.unidades.sub': '27 estados',
+    'kpi.volume':    'Volume total',
+    'kpi.volume.sub':'litros no período',
+    'kpi.coletas':   'Total de Coletas',
+    'kpi.coletas.sub':'sob demanda',
+    'kpi.transp':    'Transportadores',
+    'kpi.transp.sub':'ativos na operação',
+    'kpi.recep':     'Receptores',
+    'kpi.recep.sub': 'ativos na operação',
+    'tier.label':    'Tiers de geração — média mensal por unidade',
+    't1.badge':  'Tier 1 — Alto',    't1.range': 'média ≥ 25L/mês',
+    't2.badge':  'Tier 2 — Médio-alto', 't2.range': 'média 18–24L/mês',
+    't3.badge':  'Tier 3 — Médio-baixo','t3.range': 'média 12–17L/mês',
+    't4.badge':  'Tier 4 — Baixo',   't4.range': 'média < 12L/mês',
+    'chart.tier.title':  'Distribuição tier por marca',
+    'chart.grupo.title': 'Média mensal por tipo de loja',
+    'chart.saz.title':   'Sazonalidade — volume mensal por grupo',
+    'chart.reg.title':   'Volume por estado — semestre',
+    'top10.title':   'Top 10 unidades',   'top10.badge': 'maior volume médio',
+    'bot10.title':   'Bottom 10 unidades','bot10.badge': 'menor volume médio',
+    'ins.tier':   'LavPop concentra 71% em T1/T2 — rede uniforme. 5àsec tem mais unidades em T3/T4, puxadas pelos Satélites.',
+    'ins.grupo':  '5àsec Padrão e LavPop Padrão lideram com 1 bombona cheia (30L). Satélite gera metade. O formato da loja explica o volume.',
+    'ins.saz':    'Tendência de alta ao longo do semestre — inverno aumenta o uso de lavanderia a seco. 5àsec lidera e concentra o crescimento. LavPop tem padrão mais irregular, reflexo de uma rede menor.',
+    'ins.reg':    'Minas Gerais lidera fora de SP com 12% do volume total. Sul (PR, SC, RS) concentra alto volume por unidade — clima mais frio explica. Norte/CO tem mais unidades mas menor geração média.',
+    'ins.top10':  '5àsec Padrão domina o topo — lojas maiores, maior fluxo de peças e uso intensivo do limpador a seco. Sul e SP Capital lideram pelo clima e perfil de cliente.',
+    'ins.bot10':  'Satélites e unidades do Norte/CO concentram os menores volumes — clima equatorial reduz uso de roupas a seco e o formato Satélite opera com menor fluxo de peças por ponto.',
+  },
+  en: {
+    'units': 'units',
+    'nav.geral':     'Overview',
+    'nav.5asec':     '5àsec',
+    'nav.lavpop':    'LavPop',
+    'nav.impacto':   'Environmental Impact',
+    'nav.insights':  'Insights',
+    'header.sub':    'Semi-Annual Waste Report · Musa',
+    'screen.title':  'Overview',
+    'screen.sub':    'Perchloroethylene (PCE) Management · all units · Jan–Jun/2026',
+    'kpi.unidades':  'Active units',
+    'kpi.unidades.sub': '27 states',
+    'kpi.volume':    'Total volume',
+    'kpi.volume.sub':'liters in the period',
+    'kpi.coletas':   'Total collections',
+    'kpi.coletas.sub':'on demand',
+    'kpi.transp':    'Carriers',
+    'kpi.transp.sub':'active in operations',
+    'kpi.recep':     'Receivers',
+    'kpi.recep.sub': 'active in operations',
+    'tier.label':    'Generation tiers — monthly average per unit',
+    't1.badge':  'Tier 1 — High',       't1.range': 'avg ≥ 25L/month',
+    't2.badge':  'Tier 2 — Mid-high',   't2.range': 'avg 18–24L/month',
+    't3.badge':  'Tier 3 — Mid-low',    't3.range': 'avg 12–17L/month',
+    't4.badge':  'Tier 4 — Low',        't4.range': 'avg < 12L/month',
+    'chart.tier.title':  'Tier distribution by brand',
+    'chart.grupo.title': 'Monthly average by store type',
+    'chart.saz.title':   'Seasonality — monthly volume by group',
+    'chart.reg.title':   'Volume by state — semester',
+    'top10.title':   'Top 10 units',    'top10.badge': 'highest avg volume',
+    'bot10.title':   'Bottom 10 units', 'bot10.badge': 'lowest avg volume',
+    'ins.tier':   'LavPop concentrates 71% in T1/T2 — uniform network. 5àsec has more units in T3/T4, driven by Satellites.',
+    'ins.grupo':  '5àsec Standard and LavPop Standard lead with 1 full drum (30L). Satellite generates half. Store format explains the volume.',
+    'ins.saz':    'Upward trend throughout the semester — winter increases dry-cleaning use. 5àsec leads and concentrates growth. LavPop has a more irregular pattern, reflecting a smaller network.',
+    'ins.reg':    'Minas Gerais leads outside SP with 12% of total volume. South (PR, SC, RS) concentrates high volume per unit — colder climate explains it. North/CO has more units but lower average generation.',
+    'ins.top10':  '5àsec Standard dominates the top — larger stores, higher garment flow and intensive solvent use. South and SP Capital lead by climate and customer profile.',
+    'ins.bot10':  'Satellites and North/CO units concentrate the lowest volumes — equatorial climate reduces dry-cleaning use and the Satellite format operates with lower garment flow per location.',
+  },
+  fr: {
+    'units': 'unités',
+    'nav.geral':     'Vue d\'ensemble',
+    'nav.5asec':     '5àsec',
+    'nav.lavpop':    'LavPop',
+    'nav.impacto':   'Impact Environnemental',
+    'nav.insights':  'Insights',
+    'header.sub':    'Rapport Semestriel des Déchets · Musa',
+    'screen.title':  'Vue d\'ensemble',
+    'screen.sub':    'Gestion du perchloroéthylène (PCE) · toutes les unités · Jan–Jun/2026',
+    'kpi.unidades':  'Unités actives',
+    'kpi.unidades.sub': '27 états',
+    'kpi.volume':    'Volume total',
+    'kpi.volume.sub':'litres sur la période',
+    'kpi.coletas':   'Total collectes',
+    'kpi.coletas.sub':'à la demande',
+    'kpi.transp':    'Transporteurs',
+    'kpi.transp.sub':'actifs en opération',
+    'kpi.recep':     'Récepteurs',
+    'kpi.recep.sub': 'actifs en opération',
+    'tier.label':    'Niveaux de génération — moyenne mensuelle par unité',
+    't1.badge':  'Niveau 1 — Élevé',    't1.range': 'moy ≥ 25L/mois',
+    't2.badge':  'Niveau 2 — Moyen-haut','t2.range': 'moy 18–24L/mois',
+    't3.badge':  'Niveau 3 — Moyen-bas', 't3.range': 'moy 12–17L/mois',
+    't4.badge':  'Niveau 4 — Faible',   't4.range': 'moy < 12L/mois',
+    'chart.tier.title':  'Distribution des niveaux par marque',
+    'chart.grupo.title': 'Moyenne mensuelle par type de magasin',
+    'chart.saz.title':   'Saisonnalité — volume mensuel par groupe',
+    'chart.reg.title':   'Volume par état — semestre',
+    'top10.title':   'Top 10 unités',    'top10.badge': 'volume moy. le plus élevé',
+    'bot10.title':   'Bottom 10 unités', 'bot10.badge': 'volume moy. le plus faible',
+    'ins.tier':   'LavPop concentre 71% en T1/T2 — réseau uniforme. 5àsec a plus d\'unités en T3/T4, portées par les Satellites.',
+    'ins.grupo':  '5àsec Standard et LavPop Standard mènent avec 1 bidon plein (30L). Satellite génère la moitié. Le format du magasin explique le volume.',
+    'ins.saz':    'Tendance à la hausse tout au long du semestre — l\'hiver augmente l\'utilisation du pressing à sec. 5àsec mène et concentre la croissance. LavPop a un profil plus irrégulier, reflet d\'un réseau plus petit.',
+    'ins.reg':    'Minas Gerais mène hors SP avec 12% du volume total. Le Sud (PR, SC, RS) concentre un volume élevé par unité — le climat plus froid l\'explique. Nord/CO a plus d\'unités mais moins de génération moyenne.',
+    'ins.top10':  '5àsec Standard domine le sommet — grandes boutiques, flux de vêtements élevé et utilisation intensive du solvant. Le Sud et SP Capital mènent par le climat et le profil client.',
+    'ins.bot10':  'Les Satellites et unités du Nord/CO concentrent les volumes les plus faibles — le climat équatorial réduit l\'utilisation du pressing à sec et le format Satellite opère avec moins de flux de vêtements.',
+  }
+};
+
+function setLang(lang) {
+  const t = i18n[lang];
+  const s = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  // botões
+  ['pt','en','fr'].forEach(l => {
+    const b = document.getElementById('lang-' + l);
+    if (!b) return;
+    if (l === lang) {
+      b.style.background = 'rgba(255,255,255,0.15)';
+      b.style.borderColor = 'rgba(255,255,255,0.5)';
+      b.style.color = '#fff';
+      b.style.fontWeight = '600';
+    } else {
+      b.style.background = 'transparent';
+      b.style.borderColor = 'rgba(255,255,255,0.15)';
+      b.style.color = 'rgba(255,255,255,0.5)';
+      b.style.fontWeight = '400';
+    }
+  });
+  s('header-sub',         t['header.sub']);
+  s('btn-geral',          t['nav.geral']);
+  s('btn-5asec',          t['nav.5asec']);
+  s('btn-lavpop',         t['nav.lavpop']);
+  s('btn-impacto',        t['nav.impacto']);
+  s('btn-insights',       t['nav.insights']);
+  s('screen-title',       t['screen.title']);
+  s('screen-sub',         t['screen.sub']);
+  s('kpi-unidades-label', t['kpi.unidades']);
+  s('kpi-unidades-sub',   t['kpi.unidades.sub']);
+  s('kpi-volume-label',   t['kpi.volume']);
+  s('kpi-volume-sub',     t['kpi.volume.sub']);
+  s('kpi-coletas-label',  t['kpi.coletas']);
+  s('kpi-coletas-sub',    t['kpi.coletas.sub']);
+  s('kpi-transp-label',   t['kpi.transp']);
+  s('kpi-transp-sub',     t['kpi.transp.sub']);
+  s('kpi-recep-label',    t['kpi.recep']);
+  s('kpi-recep-sub',      t['kpi.recep.sub']);
+  s('tier-label',         t['tier.label']);
+  s('t1-badge', t['t1.badge']); s('t1-range', t['t1.range']);
+  s('t2-badge', t['t2.badge']); s('t2-range', t['t2.range']);
+  s('t3-badge', t['t3.badge']); s('t3-range', t['t3.range']);
+  s('t4-badge', t['t4.badge']); s('t4-range', t['t4.range']);
+  s('chart-tier-title',   t['chart.tier.title']);
+  s('chart-grupo-title',  t['chart.grupo.title']);
+  s('chart-saz-title',    t['chart.saz.title']);
+  s('chart-reg-title',    t['chart.reg.title']);
+  s('top10-title',        t['top10.title']);
+  s('top10-badge',        t['top10.badge']);
+  s('bot10-title',        t['bot10.title']);
+  s('bot10-badge',        t['bot10.badge']);
+  s('ins-tier',  t['ins.tier']);
+  s('ins-grupo', t['ins.grupo']);
+  s('ins-saz',   t['ins.saz']);
+  s('ins-reg',   t['ins.reg']);
+  s('ins-top10', t['ins.top10']);
+  s('ins-bot10', t['ins.bot10']);
+  document.querySelectorAll('.tier-unit').forEach(el => el.textContent = t['units']);
+  document.querySelectorAll('.th-unidade').forEach(el => el.textContent = t['col.unidade']);
+  document.querySelectorAll('.th-bandeira').forEach(el => el.textContent = t['col.bandeira']);
+  document.querySelectorAll('.th-uf').forEach(el => el.textContent = t['col.uf']);
+  document.querySelectorAll('.th-tier').forEach(el => el.textContent = t['col.tier']);
+  document.querySelectorAll('.th-media').forEach(el => el.textContent = t['col.media']);
+}
+
+Chart.defaults.font.family = 'Inter';
+Chart.defaults.font.size = 11;
+Chart.defaults.color = '#888';
+const gridColor = 'rgba(0,0,0,0.07)';
+const months = ['Jan/26','Fev/26','Mar/26','Abr/26','Mai/26','Jun/26'];
+
+// Tier por marca
+new Chart(document.getElementById('c_tier'), {
+  type: 'bar',
+  data: {
+    labels: ['5àsec', 'LavPop'],
+    datasets: [
+      { label:'T1', data:[21.9, 30.4], backgroundColor:'#b35a00', stack:'s' },
+      { label:'T2', data:[28.5, 40.6], backgroundColor:'#FFBA86', stack:'s' },
+      { label:'T3', data:[28.5, 20.3], backgroundColor:'#FFD4A8', stack:'s' },
+      { label:'T4', data:[21.1,  8.7], backgroundColor:'#e0e0e0', stack:'s' }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: { backgroundColor:'#fff', borderColor:'rgba(0,0,0,0.08)', borderWidth:1, titleColor:'#222', bodyColor:'#666', padding:10, callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(1)}%` } } },
+    scales: {
+      x: { stacked: true, grid: { display: false }, border: { display: false } },
+      y: { stacked: true, max: 100, grid: { color: gridColor }, border: { display: false }, ticks: { callback: v => v + '%' } }
+    }
+  }
+});
+
+// Média por grupo
+const grupoLabels = ['5àsec Padrão', '5àsec Express', '5àsec Satélite', 'LavPop Auto.', 'LavPop Padrão'];
+const grupoVols   = [30, 21, 15, 24, 30];
+const grupoT1pct  = [42, 18, 6, 26, 45];
+const grupoCores  = ['#b35a00', '#FFBA86', '#FFD4A8', '#8AA5FF', '#c4ceff'];
+
+new Chart(document.getElementById('c_grupo'), {
+  type: 'bar',
+  data: {
+    labels: grupoLabels,
+    datasets: [
+      { type: 'bar', data: grupoVols, backgroundColor: grupoCores, borderRadius: 6, barThickness: 36, yAxisID: 'y', order: 2 },
+      { type: 'line', data: grupoT1pct, borderColor: '#b35a00', borderWidth: 2, pointBackgroundColor: '#b35a00', pointRadius: 3, tension: 0, fill: true, backgroundColor: 'rgba(179,90,0,0.08)', yAxisID: 'y2', order: 1 }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: { backgroundColor:'#fff', borderColor:'rgba(0,0,0,0.08)', borderWidth:1, titleColor:'#222', bodyColor:'#666', padding:10, callbacks: { label: ctx => ctx.datasetIndex === 0 ? ` Média: ${ctx.parsed.y}L/mês` : ` % no Tier 1: ${ctx.parsed.y}%` } } },
+    scales: {
+      y:  { beginAtZero: true, max: 35, grid: { color: gridColor }, border: { display: false }, ticks: { callback: v => v + 'L', stepSize: 5 } },
+      y2: { beginAtZero: true, max: 100, display: false },
+      x:  { grid: { display: false }, border: { display: false } }
+    }
+  }
+});
+
+
+// ── 5àsec — Sazonalidade por tipo ──
+new Chart(document.getElementById('asec_saz'), {
+  type: 'line',
+  data: {
+    labels: months,
+    datasets: [
+      { label:'Padrão',   data:[28,26,30,31,32,33], borderColor:'#b35a00', borderWidth:2, fill:false, tension:0.3, pointRadius:3, pointBackgroundColor:'#b35a00', pointBorderColor:'#fff', pointBorderWidth:1.5 },
+      { label:'Express',  data:[19,18,20,21,22,23], borderColor:'#FFBA86', borderWidth:2, fill:false, tension:0.3, pointRadius:3, pointBackgroundColor:'#FFBA86', pointBorderColor:'#fff', pointBorderWidth:1.5 },
+      { label:'Satélite', data:[13,13,14,15,16,17], borderColor:'#FFD4A8', borderWidth:2, fill:false, tension:0.3, pointRadius:3, pointBackgroundColor:'#FFD4A8', pointBorderColor:'#fff', pointBorderWidth:1.5, borderDash:[4,3] }
+    ]
+  },
+  options: {
+    responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{display:false}, tooltip:{backgroundColor:'#fff',borderColor:'rgba(0,0,0,0.08)',borderWidth:1,titleColor:'#222',bodyColor:'#666',padding:10,callbacks:{label:ctx=>` ${ctx.dataset.label}: ${ctx.parsed.y}L`}},
+      annotation:{annotations:{verao:{type:'box',xMin:-0.5,xMax:1.5,backgroundColor:'rgba(255,140,60,0.10)',borderWidth:0,label:{content:'Verão',display:true,color:'#c45a00',font:{size:10,weight:'600'},position:{x:'center',y:'start'},yAdjust:8}},outono:{type:'box',xMin:1.5,xMax:3.5,backgroundColor:'rgba(130,150,175,0.10)',borderWidth:0,label:{content:'Outono',display:true,color:'#7A90A8',font:{size:10,weight:'600'},position:{x:'center',y:'start'},yAdjust:8}},inverno:{type:'box',xMin:3.5,xMax:5.5,backgroundColor:'rgba(100,140,255,0.12)',borderWidth:0,label:{content:'Inverno',display:true,color:'#6A8FD4',font:{size:10,weight:'600'},position:{x:'center',y:'start'},yAdjust:8}}}}
+    },
+    scales:{ y:{max:40,grid:{color:gridColor},border:{display:false},ticks:{callback:v=>v+'L'}}, x:{grid:{color:gridColor},border:{display:false}} }
+  }
+});
+
+// ── 5àsec — Barras regionais por estado (sem SP) ──
+// ── Impacto Ambiental — CO₂e mensal ──
+new Chart(document.getElementById('imp_co2_mensal'), {
+  type: 'bar',
+  data: {
+    labels: months,
+    datasets: [
+      {
+        label: 'CO₂e incineração',
+        data: [13.8, 12.9, 14.3, 14.5, 15.7, 16.5],
+        backgroundColor: '#e8e8e8',
+        borderRadius: 4,
+        stack: 's',
+        order: 2,
+      },
+      {
+        label: 'CO₂e coprocessamento',
+        data: [1.0, 0.9, 1.0, 1.0, 1.1, 1.2],
+        backgroundColor: '#FFBA86',
+        borderRadius: 4,
+        stack: 's2',
+        order: 2,
+      },
+      {
+        label: 'Gap evitado',
+        data: [12.8, 12.0, 13.3, 13.5, 14.6, 15.3],
+        type: 'line',
+        borderColor: '#b35a00',
+        borderWidth: 2,
+        borderDash: [5, 3],
+        backgroundColor: 'transparent',
+        pointBackgroundColor: '#b35a00',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 1.5,
+        pointRadius: 3,
+        tension: 0.3,
+        order: 1,
+      }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#fff', borderColor: 'rgba(0,0,0,0.08)', borderWidth: 1,
+        titleColor: '#222', bodyColor: '#666', padding: 10,
+        callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(1)} tCO₂e` }
+      }
+    },
+    scales: {
+      x: { grid: { display: false }, border: { display: false } },
+      y: { grid: { color: gridColor }, border: { display: false },
+           ticks: { callback: v => v + ' t' } }
+    }
+  }
+});
+
+function buildRegBars(elId, data, color) {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  data.forEach(r => {
+    const cityPct = r.cityVal > 0 ? Math.min((r.cityVal / 35 * 100), 100).toFixed(1) : '0';
+    el.innerHTML += `<div style="margin-bottom:12px">
+      <div style="display:grid;grid-template-columns:110px 1fr;align-items:center;gap:12px">
+        <span style="font-size:13px;font-weight:500;color:var(--text)">${r.name}</span>
+        <div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:11px">
+            <div style="flex:1;background:rgba(0,0,0,0.07);border-radius:3px;height:12px;overflow:hidden"
+              onmouseenter="showRegTip(event,'${r.name}','${r.n} de ${r.total} lojas','${r.city} · ${r.cityVal}L/mês')"
+              onmouseleave="hideRegTip()">
+              <div style="width:${r.pct}%;height:100%;background:${color};border-radius:3px"></div>
+            </div>
+            <span style="color:var(--text-light);width:36px;text-align:right">${r.pct}%</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:3px">
+            <div style="flex:1;height:5px;border-radius:3px;background:rgba(0,0,0,0.05);overflow:hidden">
+              <div style="height:100%;width:${cityPct}%;background:${color};opacity:0.5;border-radius:3px"></div>
+            </div>
+            <span style="font-size:10px;color:var(--text-mid);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px">${r.cityVal > 0 ? r.city + ' · ' + r.cityVal + 'L' : '—'}</span>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  });
+}
+
+const regTip = document.createElement('div');
+regTip.style.cssText = 'display:none;position:fixed;z-index:999;background:#222;color:#fff;font-family:Inter,sans-serif;font-size:12px;padding:10px 14px;border-radius:10px;pointer-events:none;line-height:1.7;min-width:160px';
+document.body.appendChild(regTip);
+function showRegTip(e, nome, lojas, cidade) {
+  regTip.innerHTML = `<div style="font-weight:600;margin-bottom:4px">${nome}</div><div style="color:rgba(255,255,255,0.7)">${lojas}</div><div style="color:rgba(255,255,255,0.7)">Destaque: <span style="color:#FFBA86">${cidade}</span></div>`;
+  regTip.style.display = 'block';
+  regTip.style.left = (e.clientX + 14) + 'px';
+  regTip.style.top  = (e.clientY - 10) + 'px';
+}
+function hideRegTip() { regTip.style.display = 'none'; }
+
+// 5àsec: Sudeste=279, Sul=60, Nordeste=49, Centro-Oeste=45, Norte=23
+// Vol médio por tipo: Padrão=30L, Express=21L, Satélite=15L — Sudeste tem mais Padrão → T1+T2 alto
+const asecT12 = [
+  {name:'Sul',          pct:80, n:48,  total:60,  city:'Curitiba Batel',     cityVal:30},
+  {name:'Sudeste',      pct:67, n:187, total:279, city:'SP Jardim Europa',    cityVal:30},
+  {name:'Centro-Oeste', pct:60, n:27,  total:45,  city:'Brasília Asa Sul',    cityVal:24},
+  {name:'Nordeste',     pct:53, n:26,  total:49,  city:'Recife Boa Viagem',   cityVal:20},
+  {name:'Norte',        pct:35, n:8,   total:23,  city:'Belém Padrão',        cityVal:20},
+];
+const asecT34 = [
+  {name:'Norte',        pct:65, n:15,  total:23,  city:'Manaus Centro',       cityVal:9 },
+  {name:'Nordeste',     pct:47, n:23,  total:49,  city:'Fortaleza Satélite',  cityVal:13},
+  {name:'Centro-Oeste', pct:40, n:18,  total:45,  city:'Goiânia Satélite',    cityVal:13},
+  {name:'Sudeste',      pct:33, n:92,  total:279, city:'SP Ponto de Coleta',  cityVal:9 },
+  {name:'Sul',          pct:20, n:12,  total:60,  city:'Porto Alegre Sat.',   cityVal:14},
+];
+buildRegBars('asec_reg_t12', asecT12, '#FFBA86');
+buildRegBars('asec_reg_t34', asecT34, '#FFD4A8');
+
+// LavPop: Sudeste=27, Sul=13, Nordeste=13, Norte=10, Centro-Oeste=6
+const lavT12 = [
+  {name:'Sul',          pct:100, n:13, total:13, city:'Balneário Camboriú',   cityVal:28},
+  {name:'Sudeste',      pct:74,  n:20, total:27, city:'SP Jardim Casablanca', cityVal:25},
+  {name:'Centro-Oeste', pct:67,  n:4,  total:6,  city:'Campo Grande',         cityVal:22},
+  {name:'Nordeste',     pct:54,  n:7,  total:13, city:'Recife Centro',        cityVal:20},
+  {name:'Norte',        pct:40,  n:4,  total:10, city:'Belém Centro',         cityVal:20},
+];
+const lavT34 = [
+  {name:'Norte',        pct:60,  n:6,  total:10, city:'Santarém Caranazal',   cityVal:9 },
+  {name:'Nordeste',     pct:46,  n:6,  total:13, city:'Caucaia Genipabu',     cityVal:15},
+  {name:'Centro-Oeste', pct:33,  n:2,  total:6,  city:'Cuiabá Centro',        cityVal:14},
+  {name:'Sudeste',      pct:26,  n:7,  total:27, city:'Vitória Centro',       cityVal:16},
+  {name:'Sul',          pct:15,  n:2,  total:13, city:'Passo Fundo Centro',   cityVal:14},
+];
+buildRegBars('lavpop_reg_t12', lavT12, '#8AA5FF');
+buildRegBars('lavpop_reg_t34', lavT34, '#c4ceff');
+
+// ── LavPop — Sazonalidade ──
+new Chart(document.getElementById('lavpop_saz'), {
+  type: 'line',
+  data: {
+    labels: months,
+    datasets: [
+      { label:'Autosserviço', data:[23,24,22,25,24,26], borderColor:'#8AA5FF', borderWidth:2, fill:false, tension:0.3, pointRadius:3, pointBackgroundColor:'#8AA5FF', pointBorderColor:'#fff', pointBorderWidth:1.5 },
+      { label:'Padrão',       data:[28,27,29,30,30,30], borderColor:'#c4ceff', borderWidth:2, fill:false, tension:0.3, pointRadius:3, pointBackgroundColor:'#c4ceff', pointBorderColor:'#fff', pointBorderWidth:1.5, borderDash:[4,3] }
+    ]
+  },
+  options: {
+    responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{display:false}, tooltip:{backgroundColor:'#fff',borderColor:'rgba(0,0,0,0.08)',borderWidth:1,titleColor:'#222',bodyColor:'#666',padding:10,callbacks:{label:ctx=>` ${ctx.dataset.label}: ${ctx.parsed.y}L`}},
+      annotation:{annotations:{verao:{type:'box',xMin:-0.5,xMax:1.5,backgroundColor:'rgba(255,140,60,0.10)',borderWidth:0,label:{content:'Verão',display:true,color:'#c45a00',font:{size:10,weight:'600'},position:{x:'center',y:'start'},yAdjust:8}},outono:{type:'box',xMin:1.5,xMax:3.5,backgroundColor:'rgba(130,150,175,0.10)',borderWidth:0,label:{content:'Outono',display:true,color:'#7A90A8',font:{size:10,weight:'600'},position:{x:'center',y:'start'},yAdjust:8}},inverno:{type:'box',xMin:3.5,xMax:5.5,backgroundColor:'rgba(100,140,255,0.12)',borderWidth:0,label:{content:'Inverno',display:true,color:'#6A8FD4',font:{size:10,weight:'600'},position:{x:'center',y:'start'},yAdjust:8}}}}
+    },
+    scales:{ y:{max:40,grid:{color:gridColor},border:{display:false},ticks:{callback:v=>v+'L'}}, x:{grid:{color:gridColor},border:{display:false}} }
+  }
+});
+
+
+
+// Sazonalidade
+new Chart(document.getElementById('c_scatter'), {
+  type: 'line',
+  data: {
+    labels: months,
+    datasets: [
+      { label: '5àsec', data: [28, 26, 30, 31, 32, 33], borderColor: '#b35a00', borderWidth: 2, fill: false, tension: 0.3, pointRadius: 3, pointBackgroundColor: '#b35a00', pointBorderColor: '#fff', pointBorderWidth: 1.5 },
+      { label: 'LavPop', data: [23, 24, 22, 25, 24, 26], borderColor: '#8AA5FF', borderWidth: 2, fill: false, tension: 0.3, pointRadius: 3, pointBackgroundColor: '#8AA5FF', pointBorderColor: '#fff', pointBorderWidth: 1.5 }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: { backgroundColor: '#fff', borderColor: 'rgba(0,0,0,0.08)', borderWidth: 1, titleColor: '#222', bodyColor: '#666', padding: 10, callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y}L` } },
+      annotation: { annotations: {
+        verao:   { type:'box', xMin:-0.5, xMax:1.5, backgroundColor:'rgba(255,140,60,0.10)', borderWidth:0, label:{content:'Verão',   display:true, color:'#c45a00', font:{size:10,weight:'600'}, position:{x:'center',y:'start'}, yAdjust:8} },
+        outono:  { type:'box', xMin:1.5,  xMax:3.5, backgroundColor:'rgba(130,150,175,0.10)', borderWidth:0, label:{content:'Outono',  display:true, color:'#7A90A8', font:{size:10,weight:'600'}, position:{x:'center',y:'start'}, yAdjust:8} },
+        inverno: { type:'box', xMin:3.5,  xMax:5.5, backgroundColor:'rgba(100,140,255,0.12)', borderWidth:0, label:{content:'Inverno', display:true, color:'#6A8FD4', font:{size:10,weight:'600'}, position:{x:'center',y:'start'}, yAdjust:8} }
+      }}
+    },
+    scales: {
+      y: { max: 40, grid: { color: gridColor }, border: { display: false }, ticks: { callback: v => v + 'L' } },
+      x: { grid: { color: gridColor }, border: { display: false } }
+    }
+  }
+});
+
+// Regional — 10 estados, sem SP, linha laranja de % do total
+const estados = [
+  { uf:'MG', n5:30, nL:4,  pct:12.1 },
+  { uf:'PR', n5:26, nL:3,  pct:10.3 },
+  { uf:'SC', n5:18, nL:7,  pct: 8.9 },
+  { uf:'RS', n5:16, nL:3,  pct: 6.8 },
+  { uf:'RJ', n5:18, nL:0,  pct: 6.4 },
+  { uf:'GO', n5:16, nL:1,  pct: 6.0 },
+  { uf:'PA', n5:11, nL:6,  pct: 6.0 },
+  { uf:'DF', n5:15, nL:1,  pct: 5.7 },
+  { uf:'PE', n5:11, nL:4,  pct: 5.3 },
+  { uf:'BA', n5:12, nL:1,  pct: 4.6 },
+];
+
+// Tooltip
+const tip = document.createElement('div');
+tip.style.cssText = 'display:none;position:fixed;z-index:999;background:#222;color:#fff;font-family:Inter,sans-serif;font-size:12px;padding:10px 14px;border-radius:10px;pointer-events:none;line-height:1.7;min-width:160px';
+document.body.appendChild(tip);
+
+function showTip(e, uf, n5, nL, volKL, pct) {
+  tip.innerHTML = `<div style="font-weight:600;margin-bottom:6px;font-size:13px">${uf}</div>
+    <div style="color:rgba(255,255,255,0.7)">5àsec: <span style="color:#FFBA86;font-weight:500">${n5} un.</span></div>
+    ${nL > 0 ? `<div style="color:rgba(255,255,255,0.7)">LavPop: <span style="color:#8AA5FF;font-weight:500">${nL} un.</span></div>` : ''}
+    <div style="color:rgba(255,255,255,0.7)">Volume: <span style="color:#fff;font-weight:500">${volKL} kL</span></div>
+    <div style="color:rgba(255,255,255,0.7)">% do total: <span style="color:#FFBA86;font-weight:500">${pct}%</span></div>`;
+  tip.style.display = 'block';
+  moveTip(e);
+}
+function moveTip(e) {
+  tip.style.left = (e.clientX + 14) + 'px';
+  tip.style.top  = (e.clientY - 10) + 'px';
+}
+function hideTip() { tip.style.display = 'none'; }
+
+const maxEstVol = Math.max(...estados.map(e => e.n5*24*6 + e.nL*24*6));
+const rl = document.getElementById('reg-list');
+estados.forEach(e => {
+  const v5 = e.n5*24*6, vL = e.nL*24*6, vT = v5+vL;
+  const p5 = (v5/maxEstVol*100).toFixed(1);
+  const pL = (vL/maxEstVol*100).toFixed(1);
+  const volKL = (vT/1000).toFixed(1);
+  const div = document.createElement('div');
+  div.style.cssText = 'margin-bottom:11px;cursor:default;border-radius:8px;padding:6px 8px;transition:background .15s';
+  div.onmouseenter = ev => { div.style.background = 'rgba(0,0,0,0.05)'; showTip(ev, e.uf, e.n5, e.nL, volKL, e.pct); };
+  div.onmousemove  = ev => moveTip(ev);
+  div.onmouseleave = ()  => { div.style.background = ''; hideTip(); };
+  div.innerHTML = `
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="width:32px;flex-shrink:0;font-size:12px;font-weight:600;color:var(--text)">${e.uf}</div>
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">
+          <span style="font-size:10px;font-weight:500;color:var(--orange-dark);width:38px;flex-shrink:0">5àsec</span>
+          <div style="flex:1;background:rgba(0,0,0,0.07);border-radius:3px;height:12px;overflow:hidden">
+            <div style="width:${p5}%;height:100%;background:#FFBA86;border-radius:3px"></div>
+          </div>
+          <span style="font-size:10px;color:var(--text-light);width:34px;text-align:right">${(v5/1000).toFixed(1)}kL</span>
+        </div>
+        ${vL > 0 ? `<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">
+          <span style="font-size:10px;font-weight:500;color:var(--blue-dark);width:38px;flex-shrink:0">LavPop</span>
+          <div style="flex:1;background:rgba(0,0,0,0.07);border-radius:3px;height:12px;overflow:hidden">
+            <div style="width:${pL}%;height:100%;background:#8AA5FF;border-radius:3px"></div>
+          </div>
+          <span style="font-size:10px;color:var(--text-light);width:34px;text-align:right">${(vL/1000).toFixed(1)}kL</span>
+        </div>` : ''}
+        <div style="display:flex;align-items:center;gap:6px">
+          <div style="width:38px;flex-shrink:0"></div>
+          <div style="flex:1;background:rgba(0,0,0,0.05);border-radius:3px;height:4px;overflow:hidden">
+            <div style="width:${e.pct/15*100}%;height:100%;background:#b35a00;border-radius:3px;opacity:0.7;max-width:100%"></div>
+          </div>
+          <span style="font-size:10px;color:#b35a00;font-weight:500;width:34px;text-align:right">${e.pct}%</span>
+        </div>
+      </div>
+    </div>`;
+  rl.appendChild(div);
+});
+</script>
+</body>
+</html>
